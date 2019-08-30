@@ -16,7 +16,7 @@ library(readxl)
 library(data.table)
 library(tidyverse)
 library(viridis)
-library(getTBinR)
+## library(getTBinR)
 library(dplyr)
 library(plyr)
 
@@ -35,7 +35,7 @@ df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-
 
 # Crude birth rate and births 
 # Crude birth rate (births per 1,000 population)								
-cbr_average<- read_csv("~/Downloads/WPP2019_Period_Indicators_Medium.csv")  %>% select(Location, Variant, Time, CBR, Births)
+cbr_average<- read_csv("WPP2019_Period_Indicators_Medium.csv")  %>% select(Location, Variant, Time, CBR, Births)
 cbr_lohi<- read_csv("WPP2019_Period_Indicators_OtherVariants.csv") %>% select(Location, Variant, Time, CBR, Births)
 
 cbr <- rbind(cbr_average, cbr_lohi)
@@ -345,3 +345,13 @@ summary_regions2 <- new_df_cbrbirths%>%group_by(g_whoregion)%>%summarise_at(key_
 summary_SEA <- new_df_cbrbirths%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
   summarise_at(key_parms, funs(sum), na.rm=T)
 
+## combining uncertainty notes:
+## Q: I work out Q.sd = (Q.hi-Q.lo)/(2*1.96)
+## C = A + B
+## C.sd^2 = A.sd^2 + B.sd^2
+## A = B*C
+## log(A) = log(B) + log(C)
+## differentiate:  dA / A = dB/B + dC/C
+## (A.sd/A)^2 = (B.sd/B)^2 + (C.sd/C)^2
+
+## https://www.equator-network.org/reporting-guidelines/gather-statement/
