@@ -16,7 +16,7 @@ meta::forest(bpp_res.FE,slab=paste0(DRPP[,FA],', ',DRPP[,country],', ', DRPP[,ye
 dev.off()
 
 # Random-Effects Model - Bothamley included (each site as a study)
-b_res.RE <- rma(yi=yi,vi=vi,data=DRPP)
+bpp_res.RE <- rma(yi=yi,vi=vi,data=DRPP)
 print(bpp_res.FE)
 predict(bpp_res.FE, transf=exp, digits=3)
 

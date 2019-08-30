@@ -17,8 +17,8 @@ res <- rma(yi=yi,vi=vi,data=DRPP,
            slab=paste(FA, country, year, sep=", "))
 
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 28),
-       order=order(DRPP$Full_study),rows=c(3:16,21:24), xlab="Risk Ratio", mlab="", psize=1)
+forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
+       order=order(DRPP$Full_study),rows=c(3:15,20:23), xlab="Incidence Rate Ratio", mlab="", psize=1)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -31,15 +31,15 @@ text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
 op <- par(cex=0.75, font=4)
 
 ### add text for the subgroups
-text(-16, c(17,25), pos=4, c("Bothamley",
+text(-16, c(16,24), pos=4, c("Bothamley",
                                "Without Bothamley"))
 
 ### switch to bold font
 par(font=2)
 
 ### add column headings to the plot
-text(-16,                27, "Author(s), Country and Year",  pos=4)
-text(10,                 27, "Incidence Risk Ratio [95% CI]", pos=2)
+text(-16,                26, "Author(s), Country and Year",  pos=4)
+text(10,                 26, "Incidence Rate Ratio [95% CI]", pos=2)
 
 ### set par back to the original settings
 par(op)

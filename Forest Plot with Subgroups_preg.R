@@ -53,7 +53,7 @@ res.wb <- rma(yi=yi,vi=vi,data=DR,
 
 ### add summary polygons for the three subgroups
 addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="")
-addpoly(res.wb, row= 16.5, cex=0.75, atransf=exp, mlab="")
+addpoly(res.wb, row= 17.5, cex=0.75, atransf=exp, mlab="")
 
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic for subgroups
@@ -62,7 +62,7 @@ text(-16, 1.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.b$QE, digits=2, format="f")), ", df = ", .(res.b$k - res.b$p),
                                              ", p = ", .(formatC(res.b$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.b$I2, digits=1, format="f")), "%)")))
-text(-16, 16.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
+text(-16, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.wb$QE, digits=2, format="f")), ", df = ", .(res.wb$k - res.wb$p),
                                              ", p = ", .(formatC(res.wb$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.wb$I2, digits=1, format="f")), "%)")))

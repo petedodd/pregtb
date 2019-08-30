@@ -20,8 +20,8 @@ library(getTBinR)
 library(dplyr)
 library(plyr)
 
-# setwd("U:/Documents/GitHub/pregTB")
-setwd("~/Documents/GitHub/pregtb")
+setwd("U:/Documents/GitHub/pregTB")
+# setwd("~/Documents/GitHub/pregtb")
 
 # read in WHO TB data disaggregated by age and sex
 # read in the data dictionary 
@@ -48,9 +48,9 @@ for (k in 1:length(names(births))){ #convert all the rows with type 'integer' to
 }
 # recategorizing age groups to match the WHO TB data
 
-births$"15-24" <- rowMeans(births[c("15-19", "20-24")], na.rm=TRUE)
-births$"25-34" <- rowMeans(births[c("25-29", "30-34")], na.rm=TRUE)
-births$"35-44" <- rowMeans(births[c("35-39", "40-44")], na.rm=TRUE)
+births$"15-24" <- rowSums(births[c("15-19", "20-24")], na.rm=TRUE)
+births$"25-34" <- rowSums(births[c("25-29", "30-34")], na.rm=TRUE)
+births$"35-44" <- rowSums(births[c("35-39", "40-44")], na.rm=TRUE)
 births$"45-54" <- births$`45-49`
 
 names(births)[3] <- "country"
@@ -227,9 +227,9 @@ new_df_births$g_whoregion[is.na(new_df_births$g_whoregion)] <- "AFR" # problem w
 # df_2 <- ISO %>% select(-iso2, -iso3, -iso_numeric) %>% left_join(df, by="country")
 
 # Estimate the incidence of TB in pregnancy
-new_df_births$pregTBI_best <- new_df_births$births_best * 9/12 * (new_df_births$TBI_best/new_df_births$pop_f)
-new_df_births$pregTBI_lo   <- new_df_births$births_lo   * 9/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
-new_df_births$pregTBI_hi   <- new_df_births$births_hi   * 9/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
+new_df_births$pregTBI_best <- new_df_births$births_best * 280/365 * (new_df_births$TBI_best/new_df_births$pop_f)
+new_df_births$pregTBI_lo   <- new_df_births$births_lo   * 280/365 * (new_df_births$TBI_lo/new_df_births$pop_f)
+new_df_births$pregTBI_hi   <- new_df_births$births_hi   * 280/365 * (new_df_births$TBI_hi/new_df_births$pop_f)
 
 # Estimate the incidence of TB in post-partum period
 new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)

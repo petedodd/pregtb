@@ -18,7 +18,7 @@ res <- rma(yi=yi,vi=vi,data=DRPP,
 
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 28),
-       order=order(DRPP$Full_study),rows=c(3:16,21:24), xlab="Risk Ratio", mlab="", psize=1)
+       order=order(DRPP$Full_study),rows=c(3:16,21:24), xlab="Incidence Rate Ratio", mlab="", psize=1)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -39,7 +39,7 @@ par(font=2)
 
 ### add column headings to the plot
 text(-16,                27, "Author(s), Country and Year",  pos=4)
-text(10,                 27, "Incidence Risk Ratio [95% CI]", pos=2)
+text(10,                 27, "Incidence Rate Ratio [95% CI]", pos=2)
 
 ### set par back to the original settings
 par(op)
