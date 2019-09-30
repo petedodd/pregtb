@@ -16,9 +16,10 @@ par(mar=c(4,4,1,2))
 res <- rma(yi=yi,vi=vi,data=DR,
            slab=paste(FA, country, year, sep=", "), method="REML")
 
+pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_preg.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
-       order=order(DR$Full_study),rows=c(3:14,19:23), xlab="Risk Ratio", mlab="", psize=1)
+       order=order(DR$Full_study),rows=c(3:14,19:23), xlab="Incidence Risk Ratio", mlab="", psize=1)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -66,3 +67,5 @@ text(-16, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.wb$QE, digits=2, format="f")), ", df = ", .(res.wb$k - res.wb$p),
                                              ", p = ", .(formatC(res.wb$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.wb$I2, digits=1, format="f")), "%)")))
+
+dev.off()

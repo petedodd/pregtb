@@ -16,6 +16,7 @@ par(mar=c(4,4,1,2))
 res <- rma(yi=yi,vi=vi,data=DR,
            slab=paste(FA, country, year, sep=", "), method="REML")
 
+pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_pregnancy.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 31),
        order=order(DR[,Full_study], DR[,HIV]) ,rows=c(3:14,19:21, 26:27), xlab="Incidence Rate Ratio", mlab="", psize=1)
@@ -73,3 +74,5 @@ text(-16, 24.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                               .(formatC(res.wbnohiv$QE, digits=2, format="f")), ", df = ", .(res.wbnohiv$k - res.wbnohiv$p),
                                               ", p = ", .(formatC(res.wbnohiv$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                               .(formatC(res.wbnohiv$I2, digits=1, format="f")), "%)")))
+
+dev.off()

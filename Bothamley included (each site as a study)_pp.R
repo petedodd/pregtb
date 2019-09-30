@@ -21,5 +21,5 @@ print(bpp_res.FE)
 predict(bpp_res.FE, transf=exp, digits=3)
 
 pdf('res.RE.pdf')
-meta::forest(bpp_res.FE,slab=paste0(DRPP[,FA],', ',DRPP[,country],', ', DRPP[,year]),atransf = exp, showweights = T)
+meta::forest(bpp_res.RE,slab=paste0(DRPP[,FA],', ',DRPP[,country],', ', DRPP[,year]),atransf = exp, showweights = T)
 dev.off()

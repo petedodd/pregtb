@@ -243,8 +243,10 @@ ipregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise
 key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_lo", "births_hi", "pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
                "ppTBI_lo", "ppTBI_hi")
+library(janitor)
+summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
-summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T)
+write.csv(summary_regions, "U:/Documents/GitHub/pregtb/outdata/Total number of incident tuberculosis cases in pregnant women.csv")
 
 summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
   summarise_at(key_parms, funs(sum), na.rm=T)

@@ -16,6 +16,8 @@ par(mar=c(4,4,1,2))
 res <- rma(yi=yi,vi=vi,data=DRPP,
            slab=paste(FA, country, year, sep=", "))
 
+
+pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_post-partum.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
        order=order(DRPP$Full_study),rows=c(3:15,20:23), xlab="Incidence Rate Ratio", mlab="", psize=1)
@@ -66,3 +68,5 @@ text(-16, 18.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.wb$QE, digits=2, format="f")), ", df = ", .(res.wb$k - res.wb$p),
                                              ", p = ", .(formatC(res.wb$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.wb$I2, digits=1, format="f")), "%)")))
+
+dev.off()
