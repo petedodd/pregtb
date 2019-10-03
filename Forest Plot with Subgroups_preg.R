@@ -1,5 +1,5 @@
 # Random-Effects Model - Bothamley data included 
-# REM for Bothamley data & REM for other studies
+# Generated a summary measure of Bothamley paper & used it in the Pregnancy MA
 # Includes studies with HIV
 
 

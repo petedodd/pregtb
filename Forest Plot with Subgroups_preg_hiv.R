@@ -1,6 +1,6 @@
 # Random-Effects Model - Bothamley data included 
-# REM for Bothamley data & REM for other studies
-# Includes studies with HIV
+# Generated a summary measure of Bothamley paper & used it in the Pregnancy MA
+# Includes studies with HIV - sub-groups
 
 
 setwd("U:/Documents/GitHub/pregtb")
