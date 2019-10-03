@@ -236,6 +236,11 @@ new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TB
 new_df_births$ppTBI_lo   <- new_df_births$births_lo   * 3/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
 new_df_births$ppTBI_hi   <- new_df_births$births_hi   * 3/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
 
+new_df_births$pregTBI_best_sd <- sqrt((new_df_births$births_hi - new_df_births$births_best)^2 + (new_df_births$TBI_hi - new_df_births$TBI_best)^2)
+new_df_births$pregTBI_best_sd1 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo)/sqrt(3))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(3))^2)
+new_df_births$pregTBI_best_sd2 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo))^2)
+new_df_births$pregTBI_best_sd3 <- sqrt(((new_df_births$births_hi - new_df_births$births_lo)/sqrt(12))^2 + ((new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(12))^2)
+
 pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
 
 ipregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
@@ -248,6 +253,14 @@ summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parm
 
 write.csv(summary_regions, "U:/Documents/GitHub/pregtb/outdata/Total number of incident tuberculosis cases in pregnant women.csv")
 
-summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
-  summarise_at(key_parms, funs(sum), na.rm=T)
+# summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
+#   summarise_at(key_parms, funs(sum), na.rm=T)
 
+# The 30 TB high burden countries
+hbc <- c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", 
+         "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", 
+         "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe")
+
+summary_hbc <- new_df_births %>% filter(country %in% hbc) %>% group_by(country)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
+
+write.csv(summary_hbc, "U:/Documents/GitHub/pregtb/outdata/Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO.csv")
