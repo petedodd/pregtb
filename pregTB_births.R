@@ -19,6 +19,7 @@ library(viridis)
 library(getTBinR)
 library(dplyr)
 library(plyr)
+library(here)
 
 setwd("U:/Documents/GitHub/pregTB")
 # setwd("~/Documents/GitHub/pregtb")
@@ -35,9 +36,10 @@ df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-
 
 # Births by age of mother
 # Births by five-year age group of mother, region, subregion and country, 1950-2100 (thousands)								
-births_average<- read_excel("births_med.xlsx")
-births_lo<- read_excel("births_lo.xlsx")
-births_hi<- read_excel("births_hi.xlsx")
+births_average <- read_excel(here("indata", "births_med.xlsx"))
+births_lo<- read_excel(here("indata", "births_lo.xlsx"))
+births_hi<- read_excel(here("indata", "births_hi.xlsx"))
+
 
 births <- rbind(births_average, births_lo, births_hi)
 
@@ -131,7 +133,7 @@ births$country <- (mapvalues((births$country), from = c(
 
 # add ISO country codes to births
 load("isodict.Rdata")
-code <- read_csv("all.csv") # has more details on codes
+code <- read_csv(here("indata", "all.csv")) # has more details on codes
 code <- code %>% dplyr::rename(country=name, iso3=`alpha-3`) %>% select(country, `country-code`, iso3, region, `sub-region`)
 
 births <- births %>% select(-c("Notes", `Country code`)) %>% left_join(ISO, by = "country") 
@@ -142,7 +144,7 @@ births_2017 <- births %>% filter(year==2017) %>% select(country,iso3, g_whoregio
 
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)								
-pop_f <- read_excel("pop_med.xlsx")
+pop_f <- read_excel(here("indata","pop_med.xlsx"))
 pop_f$"15-24" <- rowSums(pop_f[c("15-19", "20-24")], na.rm=TRUE)
 pop_f$"25-34" <- rowSums(pop_f[c("25-29", "30-34")], na.rm=TRUE)
 pop_f$"35-44" <- rowSums(pop_f[c("35-39", "40-44")], na.rm=TRUE)
@@ -248,11 +250,29 @@ ipregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise
 key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_lo", "births_hi", "pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
                "ppTBI_lo", "ppTBI_hi")
+
 library(janitor)
 summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
-write.csv(summary_regions, "U:/Documents/GitHub/pregtb/outdata/Total number of incident tuberculosis cases in pregnant women.csv")
+summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
 
+write.csv(summary_regions, here( "outdata", "Total number of incident tuberculosis cases in pregnant women.csv"))
+
+regions <- summary_regions_byagegroup %>% 
+  select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
+  dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
+  gather(variable, value, c("Pregnancy", "Postpartum")) %>% 
+  mutate(TBI_rate = value/births_best*1000) %>%  
+  ggplot(aes(x=age_group,y=TBI_rate,fill=variable)) +
+  geom_bar(stat="identity",position="dodge") +
+  # scale_fill_discrete(name="variable",
+  #                     breaks=c(1, 2),
+  #                     labels=c("Pregnancy", "Postpartum")) +
+  xlab("Age in years")+ylab("TB incidence rate per 1000 pregnant women") + facet_wrap(~g_whoregion) +
+  theme(text = element_text(size=20),
+        axis.text.x = element_text(angle=45, hjust=1))
+
+ggsave(plot=regions,filename="TB incidence.svg", width=10, height=8, dpi=400)
 # summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
 #   summarise_at(key_parms, funs(sum), na.rm=T)
 
@@ -263,4 +283,4 @@ hbc <- c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republi
 
 summary_hbc <- new_df_births %>% filter(country %in% hbc) %>% group_by(country)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
-write.csv(summary_hbc, "U:/Documents/GitHub/pregtb/outdata/Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO.csv")
+write.csv(summary_hbc, here( "outdata", "Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO.csv"))
