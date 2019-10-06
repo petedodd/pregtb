@@ -257,6 +257,37 @@ new_df_births$pregTBI_best_sd1 <- sqrt((0.5*(new_df_births$births_hi - new_df_bi
 new_df_births$pregTBI_best_sd2 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo))^2)
 new_df_births$pregTBI_best_sd3 <- sqrt(((new_df_births$births_hi - new_df_births$births_lo)/sqrt(12))^2 + ((new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(12))^2)
 
+## or use the 'width' -- there will be a common factor of 3.92 for all contributors:
+new_df_births$birthsWidth <- new_df_births$births_hi - new_df_births$births_lo
+new_df_births$birthsWidthSq <- new_df_births$birthsWidth^2 #a multiple of variance
+new_df_births$TBIwidth <- new_df_births$TBI_hi - new_df_births$TBI_lo
+new_df_births$TBIwidthSq <- new_df_births$TBIwidth^2 #a multiple of variance
+
+## calx
+new_df_births$pregTBI_best <- new_df_births$births_best * 280/365 * (new_df_births$TBI_best/new_df_births$pop_f)
+
+## A = B*C
+## log(A) = log(B) + log(C)
+## differentiate:  dA / A = dB/B + dC/C
+## (A.sd/A)^2 = (B.sd/B)^2 + (C.sd/C)^2
+new_df_births$pregTBIwidth <- new_df_births$pregTBI_best *
+  sqrt((new_df_births$TBIwidth/new_df_births$TBI_best)^2 +
+       (new_df_births$birthsWidth/new_df_births$births_best)^2)
+
+## TODO -- PJD
+## then hi = best + width/2
+## then lo = best - width/2
+## paying attention to any -ves
+## and:
+## to aggregate eg over countries, sum the square of the widths, and the sqrt them
+## and then use as above to generate lo/hi around the aggregate best
+
+
+## then you
+pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+
+
+
 pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
 
 ipregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
