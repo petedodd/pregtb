@@ -19,15 +19,30 @@ library(viridis)
 ## library(getTBinR)
 library(dplyr)
 library(plyr)
+library(here)
 
 # setwd("U:/Documents/GitHub/pregTB")
-setwd("~/Documents/GitHub/pregtb")
+## here("~/Documents/GitHub/pregtb")
 
 # read in WHO TB data disaggregated by age and sex
 # read in the data dictionary 
 # Estimated number of incident cases (all forms) - Worked it out from the main dataset???
-df<- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
-df_dic<-read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=dictionary")
+if(!file.exists(here('indata/df.Rdata'))){
+  df<- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
+  save(df,file=here('indata/df.Rdata'))
+} else {
+  load(here('indata/df.Rdata'))
+}
+
+if(!file.exists(here('indata/df_dic.Rdata'))){
+  df_dic<-read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=dictionary")  
+  save(df_dic,file=here('indata/df_dic.Rdata'))
+} else {
+  load(here('indata/df_dic.Rdata'))
+}
+
+
+
 
 # Filter females of reproductive age group
 # age groups selected to match the UN population age groups for now
@@ -35,8 +50,8 @@ df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-
 
 # Crude birth rate and births 
 # Crude birth rate (births per 1,000 population)								
-cbr_average<- read_csv("WPP2019_Period_Indicators_Medium.csv")  %>% select(Location, Variant, Time, CBR, Births)
-cbr_lohi<- read_csv("WPP2019_Period_Indicators_OtherVariants.csv") %>% select(Location, Variant, Time, CBR, Births)
+cbr_average<- read_csv(here("indata/WPP2019_Period_Indicators_Medium.csv"))  %>% select(Location, Variant, Time, CBR, Births)
+cbr_lohi<- read_csv(here("indata/WPP2019_Period_Indicators_OtherVariants.csv")) %>% select(Location, Variant, Time, CBR, Births)
 
 cbr <- rbind(cbr_average, cbr_lohi)
 
@@ -64,7 +79,7 @@ cbr <- cbr %>%
 
 cbr_wide <- cbr %>% 
   group_by_at(vars(-CBR, -year, -Births)) %>%  # group by everything other than the value column. 
-  mutate(row_id=1:n()) %>% ungroup() %>%  # build group index
+  dplyr::mutate(row_id=1:dplyr::n()) %>% ungroup() %>%  # build group index
   nest(CBR, Births, .key = 'value_col') %>%
   spread(key=Variant, value=value_col) %>% 
   unnest(High, Low, Medium, .sep = '_') %>% # spread
@@ -137,11 +152,11 @@ cbr_wide$country <- (mapvalues((cbr_wide$country), from = c(
     "Czech Republic",
     "Republique du Côte d'Ivoire")
 ))
-
+## TODO check CIV
 
 # add ISO country codes to births
-load("isodict.Rdata")
-code <- read_csv("all.csv") # has more details on codes
+load(here("isodict.Rdata"))
+code <- read_csv(here("indata/all.csv")) # has more details on codes
 code <- code %>% dplyr::rename(country=name, iso3=`alpha-3`) %>% select(country, `country-code`, iso3, region, `sub-region`)
 
 # Final dataset for crude birth rates
@@ -151,8 +166,15 @@ cbr_wide <- cbr_wide %>% left_join(ISO, by = "country")
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)								
 
-popn_all <- read_csv("https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv")
-pop_f <- read_excel("pop_med.xlsx")
+fn <- here('indata/popn_all.Rdata')
+if(!file.exists(fn)){
+  popn_all <- read_csv("https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv")
+  save(popn_all,file=fn)
+} else {
+  load(fn)
+}
+
+pop_f <- read_excel(here("indata/pop_med.xlsx"))
 pop_f$"15-24" <- rowSums(pop_f[c("15-19", "20-24")], na.rm=TRUE)
 pop_f$"25-34" <- rowSums(pop_f[c("25-29", "30-34")], na.rm=TRUE)
 pop_f$"35-44" <- rowSums(pop_f[c("35-39", "40-44")], na.rm=TRUE)
@@ -167,7 +189,7 @@ pop_all <- popn_all %>% dplyr::rename(country=Location, year=Time) %>% select(co
                                  
 tpop_wide <- pop_all %>% 
   group_by_at(vars( -year)) %>%  # group by everything other than the value column. 
-  mutate(row_id=1:n()) %>% ungroup() %>%  # build group index
+  dplyr::mutate(row_id=1:n()) %>% ungroup() %>%  # build group index
   spread(key=Variant, value=PopTotal) %>%    # spread
   select(-row_id)  # drop the index
 
@@ -312,7 +334,11 @@ num_cbrbirths <- cbr_wide %>% select(-iso2, -iso_numeric) %>% left_join(tpop_wid
 # cbr_2017 <- cbr_wide %>% filter(year==2017)
 num_cbrbirths2017 <- num_cbrbirths %>% filter(year==2017)
 
-new_df_pop <- pop_f2017 %>% group_by(country, iso3) %>% summarise(tpopf=sum(pop_f, na.rm = T)) %>% left_join(num_cbrbirths2017, by=c("country","iso3"))
+## TODO: PJD has error here: Error: `by` can't contain join column `country`, `iso3` which is missing from LHS
+new_df_pop <- pop_f2017 %>%
+  group_by(country, iso3) %>%
+  summarise(tpopf=sum(pop_f, na.rm = T)) %>%
+  left_join(num_cbrbirths2017, by=c("country","iso3"))
 # combining the different datasets - births, population of females in the reproductive age and TB incident case in women in the reproductive age group
 new_df_cbrbirths <- df_1 %>% group_by(country, iso3) %>%   summarise_at(
   .vars= vars( best, lo, hi), 
