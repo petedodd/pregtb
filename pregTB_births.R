@@ -20,17 +20,31 @@ library(getTBinR)
 library(dplyr)
 library(plyr)
 library(here)
+library(janitor)
 
-setwd("U:/Documents/GitHub/pregTB")
+## setwd("U:/Documents/GitHub/pregTB")
 # setwd("~/Documents/GitHub/pregtb")
 
 # read in WHO TB data disaggregated by age and sex
 # read in the data dictionary 
-# Estimated number of incident cases (all forms) - Worked it out from the main dataset???
-df<- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
-df_dic<-read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=dictionary")
+                                        # Estimated number of incident cases (all forms) - Worked it out from the main dataset???
+fn <- here('indata/df.Rdata')
+if(!file.exists(fn)){
+  df<- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
+  save(df,file=fn)
+} else {
+  load(fn)
+}
 
-# Filter females of reproductive age group
+fn <- here('indata/df_dic.Rdata')
+if(!file.exists(fn)){
+  df_dic <- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=dictionary")
+  save(df,file=fn)
+} else {
+  load(fn)
+}
+
+## Filter females of reproductive age group
 # age groups selected to match the UN population age groups for now
 df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-54"))
 
@@ -132,7 +146,7 @@ births$country <- (mapvalues((births$country), from = c(
 
 
 # add ISO country codes to births
-load("isodict.Rdata")
+load(here("isodict.Rdata"))
 code <- read_csv(here("indata", "all.csv")) # has more details on codes
 code <- code %>% dplyr::rename(country=name, iso3=`alpha-3`) %>% select(country, `country-code`, iso3, region, `sub-region`)
 
@@ -251,7 +265,7 @@ key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_l
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
                "ppTBI_lo", "ppTBI_hi")
 
-library(janitor)
+
 summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
 summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
@@ -272,7 +286,10 @@ regions <- summary_regions_byagegroup %>%
   theme(text = element_text(size=20),
         axis.text.x = element_text(angle=45, hjust=1))
 
-ggsave(plot=regions,filename="TB incidence.svg", width=10, height=8, dpi=400)
+ggsave(plot=regions,filename=here("plots/TB incidence.svg"),
+       width=10, height=8, dpi=400)
+ggsave(plot=regions,filename=here("plots/TB incidence.pdf"),
+       width=10, height=8)
 # summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
 #   summarise_at(key_parms, funs(sum), na.rm=T)
 
