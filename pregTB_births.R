@@ -7,7 +7,7 @@
 # https://extranet.who.int/tme/generateCSV.asp?ds=dictionary
 # https://population.un.org/wpp/Download/Standard/Population/
 # https://population.un.org/wpp/Download/Standard/Fertility/
-
+setwd(here("Github"))
 cat("\014") # clears Console (in RStudio)
 sessionInfo() # gives session info, ver of R, packages
 rm(list=ls()) #removes work space environment
@@ -249,8 +249,10 @@ new_df_births$pregTBI_hi   <- new_df_births$births_hi   * 280/365 * (new_df_birt
 
 # Estimate the incidence of TB in post-partum period
 new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
-new_df_births$ppTBI_lo   <- new_df_births$births_lo   * 3/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
-new_df_births$ppTBI_hi   <- new_df_births$births_hi   * 3/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
+# new_df_births$ppTBI_lo   <- new_df_births$births_lo   * 3/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
+# new_df_births$ppTBI_hi   <- new_df_births$births_hi   * 3/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
+new_df_births$ppTBI_lo   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
+new_df_births$ppTBI_hi   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
 
 new_df_births$pregTBI_best_sd <- sqrt((new_df_births$births_hi - new_df_births$births_best)^2 + (new_df_births$TBI_hi - new_df_births$TBI_best)^2)
 new_df_births$pregTBI_best_sd1 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo)/sqrt(3))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(3))^2)
@@ -282,9 +284,11 @@ new_df_births$pregTBIwidth <- new_df_births$pregTBI_best *
 ## to aggregate eg over countries, sum the square of the widths, and the sqrt them
 ## and then use as above to generate lo/hi around the aggregate best
 
+# new_df_births$pregTBI_lo <- new_df_births$pregTBI_best - new_df_births$pregTBIwidth/2
+# new_df_births$pregTBI_hi <- new_df_births$pregTBI_best + new_df_births$pregTBIwidth/2
 
 ## then you
-pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+pregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
 
 
 
@@ -303,12 +307,13 @@ summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>
 
 write.csv(summary_regions, here( "outdata", "Total number of incident tuberculosis cases in pregnant women.csv"))
 
+# Plot of TB incidence during pregnancy and postpartum for the WHO regions
 regions <- summary_regions_byagegroup %>% 
   select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
   dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
-  gather(variable, value, c("Pregnancy", "Postpartum")) %>% 
+  gather(Period, value, c("Pregnancy", "Postpartum")) %>% 
   mutate(TBI_rate = value/births_best*1000) %>%  
-  ggplot(aes(x=age_group,y=TBI_rate,fill=variable)) +
+  ggplot(aes(x=age_group,y=TBI_rate,fill=Period)) +
   geom_bar(stat="identity",position="dodge") +
   # scale_fill_discrete(name="variable",
   #                     breaks=c(1, 2),
