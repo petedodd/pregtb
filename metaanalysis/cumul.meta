@@ -1,0 +1,19 @@
+# cummulative metaanalysis
+source(here("metaanalysis","meta_data prep.R"))
+
+### fit random-effects model (use slab argument to define study labels)
+res.RE <- rma(yi=yi,vi=vi,data=DR, 
+              slab=paste(FA, country, year, sep=", "), method="REML")
+
+### cumulative meta-analysis (in the order of publication year)
+tmp <- cumul(res.RE,  order=order(DR$year))
+
+### cumulative forest plot
+forest(tmp, xlim = c(-18,10), at=log(c(0.001,0.025, 0.5, 7.39, 54.6)), atransf=exp, digits=c(2,3), cex=0.75)
+
+### switch to bold font
+par(cex=0.75, font=2)
+
+### add column headings to the plot
+text(-18, 19, "Author(s) and Year",  pos=4)
+text( 8, 19, "Risk Ratio [95% CI]", pos=2)

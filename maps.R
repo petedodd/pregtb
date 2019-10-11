@@ -1,67 +1,22 @@
-require(rgdal)
-require(ggplot2)
+library(ggplot)
+library(getTBinR)
 
-fn <- here('indata/mapfile.Rdata')
-if(!file.exists(fn)){
-  fn <- file.path(tempdir(), "gadm36_gdb.zip", fsep = "\\")
-  
-  download.file("https://biogeo.ucdavis.edu/data/gadm3.6/gadm36_shp.zip", fn)
-  utils::unzip(fn, exdir = tempdir())
-  shp <- readOGR(dsn = file.path(tempdir(), "gadm36.shp"), stringsAsFactors = F)
-  save(mapfile,file=fn)
-} else {
-  load(fn)
-}
-
-summary(shp@data)
-
-
-# draw the map without attributes
-map <- ggplot() + geom_polygon(data = shp, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
-
-## Regions defined for each Polygons
-map + theme_void()
-
-shp_df <- broom::tidy(shp, region = "NAME_1")
-lapply(shp_df, class)
-
-head(shp_df)
-
-map <- ggplot() + geom_polygon(data = shp, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
-
-## Regions defined for each Polygons
-cnames <- aggregate(cbind(long, lat) ~ id, data=shp_df, FUN=mean)
-map + geom_text(data = cnames, aes(x = long, y = lat, label = id), size = 4) + theme_void()
-
-
-library(rworldmap)
+# prepare data 
 summary_countries <- new_df_births%>%group_by(country, iso3)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
 summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
 summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
 
 summary_countries <- as.data.frame(summary_countries)
 
-mapped_data <-  joinCountryData2Map(summary_countries, joinCode = "ISO3", 
-                                   nameJoinColumn = "iso3")
-# display the mapped data
-par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
-
-
-mapCountryData(mapped_data, nameColumnToPlot = "pregTBI_best_r", colourPalette = "white2Black")
-
-mapParams <- mapCountryData( mapped_data, nameColumnToPlot="pregTBI_best_r"
-                             , addLegend=FALSE )
-do.call( addMapLegend, c(mapParams, legendWidth=0.5, legendMar = 2, sigFigs = 1))
-
+# using ggplot
+# using the shapefile used in the WHO TB report
 
 ## Bind in world data
 df <- getTBinR::who_shapefile %>% 
   left_join(summary_countries, c("id" = "iso3"))
-df$pregTBI_best_r <- ifelse(is.na(df$pregTBI_best_r), 0, df$pregTBI_best_r)
+# df$pregTBI_best_r <- ifelse(is.na(df$pregTBI_best_r), 0, df$pregTBI_best_r)
 
 
-# using ggplot
-# using the shapefile used in the WHO TB report
 theme_bare <- theme(
   axis.line = element_blank(), 
   axis.text.x = element_blank(), 
@@ -99,15 +54,103 @@ postpartum <- ggplot(df,
                aes(x = long, 
                    y = lat, 
                    text = country,
-                   group = group,
                    fill = ppTBI_best_r)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
-  # scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar") +
+  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot) +
   ggtitle("Global burden of TB during postpartum") +
   guides(fill = guide_legend(title = "Estimated TB incidence (all forms) per 1000 pregnant women")) +
   # labs(caption = "Source: World Health Organisation") +
   scale_color_viridis_c(
     option = "magma") + theme_bare
+
+ggsave(plot=pregnancy,filename=here("plots/TB incidence map during pregnancy.svg"),
+       width=10, height=8, dpi=600)
+ggsave(plot=postpartum,filename=here("plots/TB incidence map during postpartum.svg"),
+       width=10, height=8, dpi = 600)
+
+
+# using the rworldmap package - needs more work to improve the maps
+library(rworldmap)
+library(RColorBrewer)
+library(classInt)
+
+
+# joining data to map data 
+mapped_data <-  joinCountryData2Map(summary_countries, joinCode = "ISO3", 
+                                    nameJoinColumn = "iso3", mapResolution = "coarse")
+
+#getting class intervals 
+classInt <- classIntervals( mapped_data[["pregTBI_best_r"]] ,n=4, style = "jenks") 
+catMethod = classInt[["brks"]]
+
+
+#getting colours 
+colourPalette <- brewer.pal(5,'RdPu')
+colourPalette1 <- c('#f1eef6','#d7b5d8','#df65b0','#dd1c77','#980043')
+colourPalette2 <- c('#fef0d9','#fdcc8a','#fc8d59','#d7301f')
+colourPalette3 <- c('#feebe2','#fbb4b9','#f768a1','#ae017e')
+colourPalette4 <- c('#ffffd4','#fed98e','#fe9929','#cc4c02')
+#plot map 
+map1 <- mapDevice() #create world map shaped window
+mapParams <- mapCountryData(mapped_data 
+                            ,nameColumnToPlot="pregTBI_best_r" 
+                            ,addLegend=FALSE 
+                            ,catMethod = catMethod 
+                            ,colourPalette=colourPalette2)
+
+# # display the mapped data
+# par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
+# 
+# 
+# mapCountryData(mapped_data, nameColumnToPlot = "pregTBI_best_r", colourPalette = "terrain")
+
+# mapParams <- mapCountryData( mapped_data, nameColumnToPlot="pregTBI_best_r"
+#                              , addLegend=FALSE )
+#adding legend 
+do.call(addMapLegend ,c(mapParams 
+                        ,legendLabels="all" 
+                        ,legendWidth=0.5 
+                        ,legendIntervals="data" 
+                        ,legendMar = 2
+                        ,sigFigs = 1))
+
+
+
+# using the rgdal package === not working 
+require(rgdal)
+require(ggplot2)
+
+fn <- here('indata/shp.Rdata')
+if(!file.exists(fn)){
+  fn <- file.path(tempdir(), "gadm36_gdb.zip", fsep = "\\")
+  
+  download.file("https://biogeo.ucdavis.edu/data/gadm3.6/gadm36_shp.zip", fn)
+  utils::unzip(fn, exdir = tempdir())
+  shp <- readOGR(dsn = file.path(tempdir(), "gadm36.shp"), stringsAsFactors = F)
+  save(shp,file=fn)
+} else {
+  load(fn)
+}
+
+summary(shp@data)
+
+
+# draw the map without attributes
+map <- ggplot() + geom_polygon(data = shp, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
+
+## Regions defined for each Polygons
+map + theme_void()
+
+shp_df <- broom::tidy(shp, region = "NAME_1")
+lapply(shp_df, class)
+
+head(shp_df)
+
+map <- ggplot() + geom_polygon(data = shp, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
+
+## Regions defined for each Polygons
+cnames <- aggregate(cbind(long, lat) ~ id, data=shp_df, FUN=mean)
+map + geom_text(data = cnames, aes(x = long, y = lat, label = id), size = 4) + theme_void()

@@ -18,8 +18,8 @@ res.RE <- rma(yi=yi,vi=vi,data=DRPP, subset=(Full_study=="Yes"),
 
 pdf(file="U:/Documents/GitHub/pregtb/plots/Forest Plot withoutBothamley_pp.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res.RE, xlim = c(-9,6), at=log(c(0.05,0.37, 1, 5)), atransf=exp,  cex=0.75, ylim=c(-1, 7),
-       xlab="Incidence Risk Ratio", mlab="", psize=1)
+forest(res.RE, xlim = c(-9,6), at=log(c(0.05,0.37, 1, 5, 10)), atransf=exp,  cex=0.75, ylim=c(-1, 7),
+       xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-9, -1, pos=4, cex=0.75, bquote(paste("RE Model for (Q = ",

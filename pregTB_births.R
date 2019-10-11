@@ -7,7 +7,7 @@
 # https://extranet.who.int/tme/generateCSV.asp?ds=dictionary
 # https://population.un.org/wpp/Download/Standard/Population/
 # https://population.un.org/wpp/Download/Standard/Fertility/
-setwd(here("Github"))
+
 cat("\014") # clears Console (in RStudio)
 sessionInfo() # gives session info, ver of R, packages
 rm(list=ls()) #removes work space environment
@@ -17,10 +17,11 @@ library(data.table)
 library(tidyverse)
 library(viridis)
 library(getTBinR)
-library(dplyr)
-library(plyr)
 library(here)
+# library(plyr)
+library(dplyr)
 library(janitor)
+library(scales)
 
 ## setwd("U:/Documents/GitHub/pregTB")
 # setwd("~/Documents/GitHub/pregtb")
@@ -288,13 +289,16 @@ new_df_births$pregTBIwidth <- new_df_births$pregTBI_best *
 # new_df_births$pregTBI_hi <- new_df_births$pregTBI_best + new_df_births$pregTBIwidth/2
 
 ## then you
-pregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+pregTB_births <- new_df_births %>% group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+
+
+# pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+
+ipregTB_births <- new_df_births %>% group_by(country,g_whoregion, age_group) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
 
 
 
-pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
-
-ipregTB_births <- new_df_births %>% dplyr::group_by(country, iso3) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
+ipregTB_births_summary <- ipregTB_births %>% group_by(g_whoregion, age_group) %>% summarise_at(c("ipregTBI_best", "ipregTBI_lo", "ipregTBI_hi"), funs(sum), na.rm = T)
 
 key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_lo", "births_hi", "pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
@@ -312,16 +316,18 @@ regions <- summary_regions_byagegroup %>%
   select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
   dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
   gather(Period, value, c("Pregnancy", "Postpartum")) %>% 
-  mutate(TBI_rate = value/births_best*1000) %>%  
-  ggplot(aes(x=age_group,y=TBI_rate,fill=Period)) +
+  # mutate(TBI_rate = value/births_best*1000) %>%  
+  ggplot(aes(x=age_group,y=value,fill=Period)) +
   geom_bar(stat="identity",position="dodge") +
   # scale_fill_discrete(name="variable",
   #                     breaks=c(1, 2),
   #                     labels=c("Pregnancy", "Postpartum")) +
-  xlab("Age in years")+ylab("TB incidence rate per 1000 pregnant women") + facet_wrap(~g_whoregion) +
+  xlab("Age in years")+ylab("Estimated number of TB incident cases (all forms)") + facet_wrap(~g_whoregion) +
   theme(text = element_text(size=20),
-        axis.text.x = element_text(angle=45, hjust=1))
+        axis.text.x = element_text(angle=45, hjust=1))+
+  scale_y_continuous(labels = comma)
 
+# save plots as svg # open in inkspace and save as emf for import into powerpoint
 ggsave(plot=regions,filename=here("plots/TB incidence.svg"),
        width=10, height=8, dpi=400)
 ggsave(plot=regions,filename=here("plots/TB incidence.pdf"),

@@ -3,10 +3,10 @@
 # Includes studies with HIV
 
 
-setwd("U:/Documents/GitHub/pregtb")
+# setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here("metaanalysis","meta_data prep.R"))
 
 dev.off()
 ### decrease margins so the full space is used
@@ -18,14 +18,14 @@ res.RE <- rma(yi=yi,vi=vi,data=DR, subset=(Full_study=="Yes"),
 
 pdf(file="U:/Documents/GitHub/pregtb/plots/Forest Plot withoutBothamley_preg.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res.RE, xlim = c(-9,6), at=log(c(0.05,0.37, 1, 2.72)), atransf=exp,  cex=0.75, ylim=c(-1, 8),
-       xlab="Incidence Risk Ratio", mlab="", psize=1)
+forest(res.RE, xlim = c(-9,6), at=log(c(0.05,0.37, 1, 2.72,10)), atransf=exp,  cex=0.75, ylim=c(-1, 8),
+       xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-9, -1, pos=4, cex=0.75, bquote(paste("RE Model for (Q = ",
-                                            .(formatC(res$QE, digits=2, format="f")), ", df = ", .(res$k - res$p),
-                                            ", p = ", .(formatC(res$QEp, digits=2, format="f")), "; ", I^2, " = ",
-                                            .(formatC(res$I2, digits=1, format="f")), "%)")))
+                                            .(formatC(res.RE$QE, digits=2, format="f")), ", df = ", .(res.RE$k - res.RE$p),
+                                            ", p = ", .(formatC(res.RE$QEp, digits=2, format="f")), "; ", I^2, " = ",
+                                            .(formatC(res.RE$I2, digits=1, format="f")), "%)")))
 
 ### set font expansion factor (as in forest() above) and use bold italic
 ### font and save original settings in object 'op'

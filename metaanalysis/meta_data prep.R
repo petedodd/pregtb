@@ -10,13 +10,14 @@ usePackage("metafor") # Load "metafor" package
 usePackage("data.table")
 usePackage("meta")
 usePackage("dplyr")
+usePackage("here")
 ## usePackage("forestplot")
 
 setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-D <- fread('all_datan.csv')
-DPP <- fread('datapp.csv')
+D <- fread(here("metaanalysis", "data", "all_datan.csv"))
+DPP <- fread(here("metaanalysis", "data", 'datapp.csv'))
 names(D)
 
 # All studies pregnancy

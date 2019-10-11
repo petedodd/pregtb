@@ -19,7 +19,7 @@ res <- rma(yi=yi,vi=vi,data=DR,
 pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_preg.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-18,10), at=log(c(0.001,0.025, 0.5, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
-       order=order(DR$Full_study),rows=c(3:14,19:23), xlab="Incidence Risk Ratio", mlab="", psize=1)
+       order=order(DR$Full_study),rows=c(3:14,19:23), xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-18, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -53,8 +53,8 @@ res.wb <- rma(yi=yi,vi=vi,data=DR,
 
 
 ### add summary polygons for the three subgroups
-addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="")
-addpoly(res.wb, row= 17.5, cex=0.75, atransf=exp, mlab="")
+addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wb, row= 17.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
 
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic for subgroups

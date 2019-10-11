@@ -20,7 +20,7 @@ res <- rma(yi=yi,vi=vi,data=DRPP,
 pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_post-partum.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
-       order=order(DRPP$Full_study),rows=c(3:15,20:23), xlab="Incidence Rate Ratio", mlab="", psize=1)
+       order=order(DRPP$Full_study),rows=c(3:15,20:23), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -54,8 +54,8 @@ res.wb <- rma(yi=yi,vi=vi,data=DRPP,
 
 
 ### add summary polygons for the three subgroups
-addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="")
-addpoly(res.wb, row= 18.5, cex=0.75, atransf=exp, mlab="")
+addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wb, row= 18.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
 
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic for subgroups

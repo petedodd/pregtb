@@ -20,7 +20,7 @@ b_res.RE <- rma(yi=yi,vi=vi,data=DRPP,
 pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (each site as a study)_post-partum.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(b_res.RE, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 20),
-       xlab="Incidence Risk Ratio", mlab="", psize=1)
+       xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for (Q = ",

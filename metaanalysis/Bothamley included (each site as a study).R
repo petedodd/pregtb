@@ -7,12 +7,13 @@ source("meta_data prep.R")
 
 # Fixed-Effects Model - Bothamley included (each site as a study)
 # Includes studies with HIV
-b_res.FE <- rma(yi=yi,vi=vi,data=DR, method = "FE")
+b_res.FE <- rma(yi=yi,vi=vi,data=DR, 
+                slab=paste(FA, country, year, sep=", "), method="REML")
 print(b_res.FE)
 predict(b_res.FE, transf=exp, digits=3)
 
 pdf('res.FE.pdf')
-meta::forest(b_res.FE,slab=paste0(DR[,FA],', ',DR[,country],', ', DR[,year]),atransf = exp, showweights = T)
+meta::forest(b_res.FE,slab=paste0(DR[,FA],', ',DR[,country],', ', DR[,year]),atransf = exp, showweights = T, addcred = TRUE)
 dev.off()
 
 # Random-Effects Model - Bothamley included (each site as a study)
