@@ -244,21 +244,21 @@ new_df_births$g_whoregion[is.na(new_df_births$g_whoregion)] <- "AFR" # problem w
 # df_2 <- ISO %>% select(-iso2, -iso3, -iso_numeric) %>% left_join(df, by="country")
 
 # Estimate the incidence of TB in pregnancy
-new_df_births$pregTBI_best <- new_df_births$births_best * 280/365 * (new_df_births$TBI_best/new_df_births$pop_f)
-new_df_births$pregTBI_lo   <- new_df_births$births_lo   * 280/365 * (new_df_births$TBI_lo/new_df_births$pop_f)
-new_df_births$pregTBI_hi   <- new_df_births$births_hi   * 280/365 * (new_df_births$TBI_hi/new_df_births$pop_f)
+# new_df_births$pregTBI_best <- new_df_births$births_best * 280/365 * (new_df_births$TBI_best/new_df_births$pop_f)
+# new_df_births$pregTBI_lo   <- new_df_births$births_lo   * 280/365 * (new_df_births$TBI_lo/new_df_births$pop_f)
+# new_df_births$pregTBI_hi   <- new_df_births$births_hi   * 280/365 * (new_df_births$TBI_hi/new_df_births$pop_f)
+# 
+# # Estimate the incidence of TB in post-partum period
+# new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
+# # new_df_births$ppTBI_lo   <- new_df_births$births_lo   * 3/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
+# # new_df_births$ppTBI_hi   <- new_df_births$births_hi   * 3/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
+# new_df_births$ppTBI_lo   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
+# new_df_births$ppTBI_hi   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
 
-# Estimate the incidence of TB in post-partum period
-new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
-# new_df_births$ppTBI_lo   <- new_df_births$births_lo   * 3/12 * (new_df_births$TBI_lo/new_df_births$pop_f)
-# new_df_births$ppTBI_hi   <- new_df_births$births_hi   * 3/12 * (new_df_births$TBI_hi/new_df_births$pop_f)
-new_df_births$ppTBI_lo   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
-new_df_births$ppTBI_hi   <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
-
-new_df_births$pregTBI_best_sd <- sqrt((new_df_births$births_hi - new_df_births$births_best)^2 + (new_df_births$TBI_hi - new_df_births$TBI_best)^2)
-new_df_births$pregTBI_best_sd1 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo)/sqrt(3))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(3))^2)
-new_df_births$pregTBI_best_sd2 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo))^2)
-new_df_births$pregTBI_best_sd3 <- sqrt(((new_df_births$births_hi - new_df_births$births_lo)/sqrt(12))^2 + ((new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(12))^2)
+# new_df_births$pregTBI_best_sd <- sqrt((new_df_births$births_hi - new_df_births$births_best)^2 + (new_df_births$TBI_hi - new_df_births$TBI_best)^2)
+# new_df_births$pregTBI_best_sd1 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo)/sqrt(3))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(3))^2)
+# new_df_births$pregTBI_best_sd2 <- sqrt((0.5*(new_df_births$births_hi - new_df_births$births_lo))^2 + (0.5*(new_df_births$TBI_hi - new_df_births$TBI_lo))^2)
+# new_df_births$pregTBI_best_sd3 <- sqrt(((new_df_births$births_hi - new_df_births$births_lo)/sqrt(12))^2 + ((new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(12))^2)
 
 ## or use the 'width' -- there will be a common factor of 3.92 for all contributors:
 new_df_births$birthsWidth <- new_df_births$births_hi - new_df_births$births_lo
@@ -268,7 +268,7 @@ new_df_births$TBIwidthSq <- new_df_births$TBIwidth^2 #a multiple of variance
 
 ## calx
 new_df_births$pregTBI_best <- new_df_births$births_best * 280/365 * (new_df_births$TBI_best/new_df_births$pop_f)
-
+new_df_births$ppTBI_best <- new_df_births$births_best * 3/12 * (new_df_births$TBI_best/new_df_births$pop_f)
 ## A = B*C
 ## log(A) = log(B) + log(C)
 ## differentiate:  dA / A = dB/B + dC/C
@@ -277,6 +277,9 @@ new_df_births$pregTBIwidth <- new_df_births$pregTBI_best *
   sqrt((new_df_births$TBIwidth/new_df_births$TBI_best)^2 +
        (new_df_births$birthsWidth/new_df_births$births_best)^2)
 
+new_df_births$ppTBIwidth <- new_df_births$ppTBI_best *
+  sqrt((new_df_births$TBIwidth/new_df_births$TBI_best)^2 +
+         (new_df_births$birthsWidth/new_df_births$births_best)^2)
 ## TODO -- PJD
 ## then hi = best + width/2
 ## then lo = best - width/2
@@ -288,21 +291,29 @@ new_df_births$pregTBIwidth <- new_df_births$pregTBI_best *
 # new_df_births$pregTBI_lo <- new_df_births$pregTBI_best - new_df_births$pregTBIwidth/2
 # new_df_births$pregTBI_hi <- new_df_births$pregTBI_best + new_df_births$pregTBIwidth/2
 
+# calc includes a workaround to remove negative values 
+new_df_births$pregTBI_lo <- (new_df_births$pregTBI_best - new_df_births$pregTBIwidth/2)
+new_df_births$pregTBI_lo <- ifelse(new_df_births$pregTBI_lo<0, new_df_births$pregTBI_lo- new_df_births$pregTBI_lo, 
+                                   new_df_births$pregTBI_lo)
+new_df_births$pregTBI_hi <- (new_df_births$pregTBI_best + new_df_births$pregTBIwidth/2)
+
+new_df_births$ppTBI_lo <- (new_df_births$ppTBI_best - new_df_births$ppTBIwidth/2)
+new_df_births$ppTBI_lo <- ifelse(new_df_births$ppTBI_lo<0, new_df_births$ppTBI_lo- new_df_births$ppTBI_lo, 
+                                   new_df_births$ppTBI_lo )
+new_df_births$ppTBI_hi <- (new_df_births$ppTBI_best + new_df_births$ppTBIwidth/2)
+
 ## then you
-pregTB_births <- new_df_births %>% group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+pregTB_cases <- new_df_births %>% group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
+ppTB_cases <- new_df_births %>% group_by(country) %>% summarise(ppTBI_best=sum(ppTBI_best), ppTBI_lo=sum(ppTBI_lo), ppTBI_hi=sum(ppTBI_hi))
 
 
 # pregTB_births <- new_df_births %>% dplyr::group_by(country) %>% summarise(pregTBI_best=sum(pregTBI_best), pregTBI_lo=sum(pregTBI_lo), pregTBI_hi=sum(pregTBI_hi))
-
-ipregTB_births <- new_df_births %>% group_by(country,g_whoregion, age_group) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
-
-
-
-ipregTB_births_summary <- ipregTB_births %>% group_by(g_whoregion, age_group) %>% summarise_at(c("ipregTBI_best", "ipregTBI_lo", "ipregTBI_hi"), funs(sum), na.rm = T)
+# ipregTB_births <- new_df_births %>% group_by(country,g_whoregion, age_group) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
+# ipregTB_births_summary <- ipregTB_births %>% group_by(g_whoregion, age_group) %>% summarise_at(c("ipregTBI_best", "ipregTBI_lo", "ipregTBI_hi"), funs(sum), na.rm = T)
 
 key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_lo", "births_hi", "pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
-               "ppTBI_lo", "ppTBI_hi")
+               "ppTBI_lo", "ppTBI_hi", "pregTBIwidth", "ppTBIwidth")
 
 
 summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
@@ -312,7 +323,7 @@ summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>
 write.csv(summary_regions, here( "outdata", "Total number of incident tuberculosis cases in pregnant women.csv"))
 
 # Plot of TB incidence during pregnancy and postpartum for the WHO regions
-regions <- summary_regions_byagegroup %>% 
+regions_plot <- summary_regions_byagegroup %>% 
   select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
   dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
   gather(Period, value, c("Pregnancy", "Postpartum")) %>% 
@@ -327,8 +338,45 @@ regions <- summary_regions_byagegroup %>%
         axis.text.x = element_text(angle=45, hjust=1))+
   scale_y_continuous(labels = comma)
 
+# Plot of TB incidence during pregnancy and postpartum for the WHO regions
+# includes error bars based on low and hi values 
+regions <- summary_regions_byagegroup %>% 
+  select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
+  dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
+  gather(Period, best, c("Pregnancy", "Postpartum")) 
+  # mutate(TBI_rate = value/births_best*1000) 
+  
+  regions_lo <- summary_regions_byagegroup %>% 
+  select(g_whoregion, age_group, pregTBI_lo, ppTBI_lo) %>%
+  dplyr::rename(Pregnancy = pregTBI_lo, Postpartum = ppTBI_lo) %>%
+  gather(Period, lo, c("Pregnancy", "Postpartum"))
+
+regions_hi <- summary_regions_byagegroup %>% 
+  select(g_whoregion, age_group, pregTBI_hi, ppTBI_hi) %>%
+  dplyr::rename(Pregnancy = pregTBI_hi, Postpartum = ppTBI_hi) %>%
+  gather(Period, hi, c("Pregnancy", "Postpartum"))
+
+regions_hilo <- regions_lo %>% left_join(regions_hi, by=c("g_whoregion", "age_group", "Period"))
+
+regions_hilo <- regions_hilo %>% left_join(regions, by=c("g_whoregion", "age_group", "Period"))
+
+regions_plot2 <- regions_hilo%>%  
+  ggplot(aes(x=age_group,y=best,fill=Period)) +
+  geom_bar(stat="identity",position="dodge") +
+  # scale_fill_discrete(name="variable",
+  #                     breaks=c(1, 2),
+  #                     labels=c("Pregnancy", "Postpartum")) +
+  xlab("Age in years")+ylab("Estimated number of TB incident cases (all forms)") + facet_wrap(~g_whoregion) +
+  theme(text = element_text(size=20),
+        axis.text.x = element_text(angle=45, hjust=1))+
+  scale_y_continuous(labels = comma) + 
+    geom_errorbar(aes(ymin=lo, ymax=hi), width=.2,
+                                                     position=position_dodge(.9))
+
 # save plots as svg # open in inkspace and save as emf for import into powerpoint
-ggsave(plot=regions,filename=here("plots/TB incidence.svg"),
+ggsave(plot=regions_plot,filename=here("plots/TB incidence.svg"),
+       width=10, height=8, dpi=400)
+ggsave(plot=regions_plot2,filename=here("plots/TB incidence.svg"),
        width=10, height=8, dpi=400)
 ggsave(plot=regions,filename=here("plots/TB incidence.pdf"),
        width=10, height=8)

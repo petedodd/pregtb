@@ -1,4 +1,4 @@
-library(ggplot)
+library(ggplot2)
 library(getTBinR)
 
 # prepare data 
@@ -34,20 +34,23 @@ na.value.forplot <- 'white'
 
 # Pregnancy
 pregnancy <- ggplot(df, 
-               aes(x = long, 
-                   y = lat, 
-                   text = country,
-                   fill = pregTBI_best_r)) +
+                    aes(x = long, 
+                        y = lat, 
+                        text = country,
+                        fill = pregTBI_best_r)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
   scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot) +
+  # scale_fill_continuous(type = "viridis") +
   ggtitle("Global burden of TB during pregnancy") +
-  guides(fill = guide_legend(title = "Estimated TB incidence (all forms) per 1000 pregnant women")) +
+  guides(fill = guide_colourbar(title = "Estimated TB incidence (all forms) per 1000 pregnant women", barwidth = 30)) +
+  theme(legend.text=element_text(size=15)) +
+  # guides(fill = guide_legend(title = "Estimated TB incidence (all forms) per 1000 pregnant women")) +
   # labs(caption = "Source: World Health Organisation") +
   scale_color_viridis_c(
-                      option = "magma") + theme_bare
+    option = "magma") + theme_bare
 
 # Postpartum
 postpartum <- ggplot(df, 
@@ -61,7 +64,8 @@ postpartum <- ggplot(df,
   theme(legend.position = "bottom") +
   scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot) +
   ggtitle("Global burden of TB during postpartum") +
-  guides(fill = guide_legend(title = "Estimated TB incidence (all forms) per 1000 pregnant women")) +
+  guides(fill = guide_colorbar(title = "Estimated TB incidence (all forms) per 1000 pregnant women", barwidth = 30)) +
+  theme(legend.text=element_text(size=15)) +
   # labs(caption = "Source: World Health Organisation") +
   scale_color_viridis_c(
     option = "magma") + theme_bare
