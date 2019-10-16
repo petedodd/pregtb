@@ -311,9 +311,9 @@ ppTB_cases <- new_df_births %>% group_by(country) %>% summarise(ppTBI_best=sum(p
 # ipregTB_births <- new_df_births %>% group_by(country,g_whoregion, age_group) %>% summarise(ipregTBI_best=1.3*(pregTBI_best), ipregTBI_lo=1.3*(pregTBI_lo), ipregTBI_hi=1.3*(pregTBI_hi))
 # ipregTB_births_summary <- ipregTB_births %>% group_by(g_whoregion, age_group) %>% summarise_at(c("ipregTBI_best", "ipregTBI_lo", "ipregTBI_hi"), funs(sum), na.rm = T)
 
-key_parms <- c("pop_f", "TBI_best", "TBI_lo", "TBI_hi", "births_best", "births_lo", "births_hi", "pregTBI_best", 
+key_parms <- c("pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
-               "ppTBI_lo", "ppTBI_hi", "pregTBIwidth", "ppTBIwidth")
+               "ppTBI_lo", "ppTBI_hi")
 
 
 summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
