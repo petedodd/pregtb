@@ -5,6 +5,21 @@ library(getTBinR)
 
 source(here::here("pregTB_births.R"))
 
+# Plot of TB incidence all sexes for the WHO regions
+regions_sex <- df_iso %>% filter(!(age_group %in% c("15plus", "all", "0-4", "5-14") | sex %in% c("a", NA))) %>% 
+  select(g_whoregion, age_group, best, sex) %>%
+  # dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
+  # gather(Period, value, c("Pregnancy", "Postpartum")) %>% 
+  # mutate(TBI_rate = value/births_best*1000) %>%  
+  ggplot(aes(x=age_group,y=best,fill=sex)) +
+  geom_bar(stat="identity",position="dodge") +
+  # scale_fill_discrete(name="g_whoregion") +
+  xlab("Age in years")+ylab("Estimated number of TB incident cases (all forms)") + facet_wrap(~g_whoregion) +
+  theme(text = element_text(size=20),
+        axis.text.x = element_text(angle=45, hjust=1))+
+  scale_y_continuous(labels = comma)
+regions_sex
+
 # Plot of TB incidence during pregnancy and postpartum for the WHO regions
 regions_plot <- summary_regions_byagegroup %>% 
   select(g_whoregion, age_group, pregTBI_best, ppTBI_best) %>%

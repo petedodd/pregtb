@@ -3,6 +3,7 @@
 source(here::here("pregTB_births.R"))
 library(ggplot2)
 library(getTBinR)
+library(scales)
 # prepare data 
 summary_countries <- new_df_births%>%group_by(country, iso3)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
 # summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
@@ -26,8 +27,8 @@ theme_bare <- theme(
   axis.ticks = element_blank(), 
   axis.title.x = element_blank(), 
   axis.title.y = element_blank(),
-  legend.text=element_text(size=7),
-  legend.title=element_text(size=8),
+  legend.text=element_text(size=12),
+  legend.title=element_text(size=16),
   panel.background = element_blank(),
   panel.border = element_rect(colour = "gray", fill=NA, size=0.5)
 )
@@ -44,15 +45,11 @@ pregnancy <- ggplot(plot_df,
   coord_equal() +
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
-  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot) +
-  # scale_fill_continuous(type = "viridis") +
+  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
   ggtitle("Global burden of TB during pregnancy") +
-  guides(fill = guide_colourbar(title = "Estimated TB incidence (all forms) per 1000 pregnant women", barwidth = 30)) +
-  theme(legend.text=element_text(size=15)) +
-  # guides(fill = guide_legend(title = "Estimated TB incidence (all forms) per 1000 pregnant women")) +
-  # labs(caption = "Source: World Health Organisation") +
-  scale_color_viridis_c(
-    option = "magma") + theme_bare
+  guides(fill = guide_colourbar(title = "Estimated number of TB incident cases (all forms)", barwidth = 30)) +
+  theme_bare
+  
 
 # Postpartum
 postpartum <- ggplot(plot_df, 
@@ -64,13 +61,11 @@ postpartum <- ggplot(plot_df,
   coord_equal() +
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
-  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot) +
+  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
   ggtitle("Global burden of TB during postpartum") +
-  guides(fill = guide_colorbar(title = "Estimated TB incidence (all forms) per 1000 pregnant women", barwidth = 30)) +
-  theme(legend.text=element_text(size=15)) +
+  guides(fill = guide_colorbar(title = "Estimated number of TB incident cases (all forms)", barwidth = 30)) +
   # labs(caption = "Source: World Health Organisation") +
-  scale_color_viridis_c(
-    option = "magma") + theme_bare
+  theme_bare
 
 ggsave(plot=pregnancy,filename=here("plots/TB incidence map during pregnancy.svg"),
        width=10, height=8, dpi=600)

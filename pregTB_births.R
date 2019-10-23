@@ -179,7 +179,7 @@ births_4 <- rbind(births_2, births_3)
 #                                                                              ifelse(country=="French Guiana", "GUF",
 #                                                                                     iso3))))))))
 # filter 2017 data to match the WHO TB data 
-births_2017 <- births_4 %>% filter(year==2017) %>% select(country,iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
+births_2017 <- births_4 %>% filter(year==2018) %>% select(country,iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
 length(unique(births_2017$country))
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)								
@@ -277,7 +277,7 @@ length(unique(pop_f3$country))
 #                                                                ifelse(country=="French Guiana", "GUF",
 #                                                                       iso3))))))))
 
-pop_f2017 <- pop_f3 %>% filter(year==2017) %>% select(-year, -country) 
+pop_f2017 <- pop_f3 %>% filter(year==2018) %>% select(-year, -country) 
 num_births <- births_2017 %>% left_join(pop_f2017, by=c("iso3", "age_group")) %>% select(-country)
 # %>% 
   # gather(metric, value, c("births_best", "births_lo", "births_hi"))

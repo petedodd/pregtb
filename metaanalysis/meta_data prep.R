@@ -21,9 +21,11 @@ DPP <- fread(here::here("metaanalysis", "data", 'datapp.csv'))
 names(D)
 
 # All studies pregnancy
-DR <- D[,.(FA,Full_study, country, year,HIV,IRR,m,mlo,mhi)]
+DR <- D[,.(FA,Full_study, country, year,HIV,IRR,sample,a,b,c,d,m,mlo,mhi)]
 DR <- DR[!is.na(m)]
 DR
+DR$pregnant <- as.numeric(DR$a) + as.numeric(DR$c)
+DR$Notpregnant <- as.numeric(DR$b) + as.numeric(DR$d)
 
 DR[,yi:=log(m)]
 DR[,si:=(log(mhi)-log(mlo))/3.92]
