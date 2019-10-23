@@ -13,11 +13,11 @@ usePackage("dplyr")
 usePackage("here")
 ## usePackage("forestplot")
 
-setwd("U:/Documents/GitHub/pregtb")
+# setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-D <- fread(here("metaanalysis", "data", "all_datan.csv"))
-DPP <- fread(here("metaanalysis", "data", 'datapp.csv'))
+D <- fread(here::here("metaanalysis", "data", "all_datan.csv"))
+DPP <- fread(here::here("metaanalysis", "data", 'datapp.csv'))
 names(D)
 
 # All studies pregnancy

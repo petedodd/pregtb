@@ -1,10 +1,12 @@
+
+
+source(here::here("pregTB_births.R"))
 library(ggplot2)
 library(getTBinR)
-
 # prepare data 
 summary_countries <- new_df_births%>%group_by(country, iso3)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
-summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
-summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
+# summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
+# summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
 
 summary_countries <- as.data.frame(summary_countries)
 
@@ -12,9 +14,9 @@ summary_countries <- as.data.frame(summary_countries)
 # using the shapefile used in the WHO TB report
 
 ## Bind in world data
-df <- getTBinR::who_shapefile %>% 
+plot_df <- getTBinR::who_shapefile %>% 
   left_join(summary_countries, c("id" = "iso3"))
-# df$pregTBI_best_r <- ifelse(is.na(df$pregTBI_best_r), 0, df$pregTBI_best_r)
+# plot_df$pregTBI_best_r <- ifelse(is.na(plot_df$pregTBI_best_r), 0, plot_df$pregTBI_best_r)
 
 
 theme_bare <- theme(
@@ -33,11 +35,11 @@ theme_bare <- theme(
 na.value.forplot <- 'white'
 
 # Pregnancy
-pregnancy <- ggplot(df, 
+pregnancy <- ggplot(plot_df, 
                     aes(x = long, 
                         y = lat, 
                         text = country,
-                        fill = pregTBI_best_r)) +
+                        fill = pregTBI_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
@@ -53,11 +55,11 @@ pregnancy <- ggplot(df,
     option = "magma") + theme_bare
 
 # Postpartum
-postpartum <- ggplot(df, 
+postpartum <- ggplot(plot_df, 
                aes(x = long, 
                    y = lat, 
                    text = country,
-                   fill = ppTBI_best_r)) +
+                   fill = ppTBI_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +

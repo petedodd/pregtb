@@ -3,12 +3,12 @@
 # Includes studies with HIV
 
 
-setwd("U:/Documents/GitHub/pregtb")
+# setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here::here("metaanalysis/meta_data prep.R"))
 
-dev.off()
+# dev.off()
 ### decrease margins so the full space is used
 par(mar=c(4,4,1,2))
 
@@ -16,7 +16,7 @@ par(mar=c(4,4,1,2))
 res <- rma(yi=yi,vi=vi,data=DR,
            slab=paste(FA, country, year, sep=", "), method="REML")
 
-pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_preg.pdf")
+# pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included (data combined first)_preg.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res, xlim = c(-18,10), at=log(c(0.001,0.025, 0.5, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 27),
        order=order(DR$Full_study),rows=c(3:14,19:23), xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
@@ -68,4 +68,4 @@ text(-18, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              ", p = ", .(formatC(res.wb$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.wb$I2, digits=1, format="f")), "%)")))
 
-dev.off()
+# dev.off()

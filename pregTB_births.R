@@ -13,23 +13,22 @@ sessionInfo() # gives session info, ver of R, packages
 rm(list=ls()) #removes work space environment
 
 library(readxl)
-library(data.table)
+# library(data.table)
 library(tidyverse)
 library(viridis)
-library(getTBinR)
 library(here)
-# library(plyr)
 library(dplyr)
+library(plyr)
 library(janitor)
-library(scales)
+
 
 ## setwd("U:/Documents/GitHub/pregTB")
 # setwd("~/Documents/GitHub/pregtb")
 
 # read in WHO TB data disaggregated by age and sex
 # read in the data dictionary 
-                                        # Estimated number of incident cases (all forms) - Worked it out from the main dataset???
-fn <- here('indata/df.Rdata')
+# Estimated number of incident cases (all forms) - Worked it out from the main dataset???
+fn <- here::here('indata/df.Rdata')
 if(!file.exists(fn)){
   df<- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
   save(df,file=fn)
@@ -37,7 +36,7 @@ if(!file.exists(fn)){
   load(fn)
 }
 
-fn <- here('indata/df_dic.Rdata')
+fn <- here::here('indata/df_dic.Rdata')
 if(!file.exists(fn)){
   df_dic <- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=dictionary")
   save(df,file=fn)
@@ -47,13 +46,20 @@ if(!file.exists(fn)){
 
 ## Filter females of reproductive age group
 # age groups selected to match the UN population age groups for now
-df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-54"))
+# countries without data for these age groups are dropped n = 97
+df_1 <- df %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-54")) 
+
+df_2 <- df %>% filter(!country %in% df_1$country) %>% filter(sex=="f", age_group=="15plus")
+
+df_3 <- rbind(df_1, df_2)
+
+length(unique(df_3$country))
 
 # Births by age of mother
 # Births by five-year age group of mother, region, subregion and country, 1950-2100 (thousands)								
-births_average <- read_excel(here("indata", "births_med.xlsx"))
-births_lo<- read_excel(here("indata", "births_lo.xlsx"))
-births_hi<- read_excel(here("indata", "births_hi.xlsx"))
+births_average <- read_excel(here::here("indata", "births_med.xlsx"))
+births_lo<- read_excel(here::here("indata", "births_lo.xlsx"))
+births_hi<- read_excel(here::here("indata", "births_hi.xlsx"))
 
 
 births <- rbind(births_average, births_lo, births_hi)
@@ -64,22 +70,22 @@ for (k in 1:length(names(births))){ #convert all the rows with type 'integer' to
   }
 }
 # recategorizing age groups to match the WHO TB data
-
-births$"15-24" <- rowSums(births[c("15-19", "20-24")], na.rm=TRUE)
-births$"25-34" <- rowSums(births[c("25-29", "30-34")], na.rm=TRUE)
-births$"35-44" <- rowSums(births[c("35-39", "40-44")], na.rm=TRUE)
-births$"45-54" <- births$`45-49`
+births$`15plus` <- rowSums(births[7:13], na.rm = TRUE)
+births$"15-24"  <- rowSums(births[c("15-19", "20-24")], na.rm=TRUE)
+births$"25-34"  <- rowSums(births[c("25-29", "30-34")], na.rm=TRUE)
+births$"35-44"  <- rowSums(births[c("35-39", "40-44")], na.rm=TRUE)
+births$"45-54"  <- births$`45-49`
 
 names(births)[3] <- "country"
 births <- births %>% select(-c("15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49")) %>% 
-  gather(age_group, estimate, 7:10)
+  gather(age_group, estimate, 7:11)
 
 births <- separate(births, Period, c("from", "to"))
 births$to <- as.numeric(births$to)-1
 births$year <- mapply(seq,births$from,births$to,SIMPLIFY=FALSE)
 births$estimate <- (births$estimate*1000)/5
 births <- births %>% 
-  unnest(year) %>% 
+  tidyr::unnest(year) %>% 
   select(-from,-to) %>% 
   spread(Variant, estimate)
 
@@ -134,7 +140,9 @@ births$country <- (mapvalues((births$country), from = c(
   "Micronesia (Fed. States of)",
   "State of Palestine",
   "TFYR Macedonia",
-  "Czechia")
+  "Swaziland",
+  "Czech Republic", 
+  "Samoa")
   
   , to = c(
     "United Kingdom of Great Britain and Northern Ireland",
@@ -142,34 +150,58 @@ births$country <- (mapvalues((births$country), from = c(
     "Micronesia (Federated States of)",
     "West Bank and Gaza Strip",
     "North Macedonia",
-    "Czech Republic")
+    "Eswatini",
+    "Czechia",
+    "American Samoa")
 ))
 
-
 # add ISO country codes to births
-load(here("isodict.Rdata"))
-code <- read_csv(here("indata", "all.csv")) # has more details on codes
+load(here::here("isodict.Rdata"))
+code <- read_csv(here::here("indata", "all.csv")) # has more details on codes
 code <- code %>% dplyr::rename(country=name, iso3=`alpha-3`) %>% select(country, `country-code`, iso3, region, `sub-region`)
 
-births <- births %>% select(-c("Notes", `Country code`)) %>% left_join(ISO, by = "country") 
+births_1 <- births %>% select(-c("Notes", `Country code`)) %>% left_join(ISO, by = "country") 
 # births2<- births %>% select(-c("Notes")) %>% left_join(code, by = "country", `Country code`)%>% filter(!is.na(iso3))
 
-# filter 2017 data to match the WHO TB data 
-births_2017 <- births %>% filter(year==2017) %>% select(country,iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
+births_2 <- births_1 %>% filter(age_group %in% c("15-24", "25-34", "35-44", "45-54")) %>% filter(country %in% df_1$country)
+length(unique(births$country))
 
+births_3 <- births_1 %>% filter(country %in% df_2$country) %>% filter(age_group=="15plus")
+
+births_4 <- rbind(births_2, births_3)
+# births$iso3 <- as.character(births$iso3 )
+# births <- births %>% mutate(iso3 = ifelse(country=="Mayotte", "MYT", 
+#                                           ifelse(country=="Réunion", "REU",
+#                                                  ifelse(country=="China, Taiwan Province of China", "TWN",
+#                                                         ifelse(country=="Guadeloupe", "GLP",
+#                                                                ifelse(country=="Martinique", "MTQ",
+#                                                                       ifelse(country=="United States Virgin Islands", "VIR",
+#                                                                              ifelse(country=="French Guiana", "GUF",
+#                                                                                     iso3))))))))
+# filter 2017 data to match the WHO TB data 
+births_2017 <- births_4 %>% filter(year==2017) %>% select(country,iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
+length(unique(births_2017$country))
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)								
-pop_f <- read_excel(here("indata","pop_med.xlsx"))
-pop_f$"15-24" <- rowSums(pop_f[c("15-19", "20-24")], na.rm=TRUE)
-pop_f$"25-34" <- rowSums(pop_f[c("25-29", "30-34")], na.rm=TRUE)
-pop_f$"35-44" <- rowSums(pop_f[c("35-39", "40-44")], na.rm=TRUE)
-pop_f$"45-54" <- rowSums(pop_f[c("45-49", "50-54")], na.rm=TRUE)
+pop_f <- read_excel(here::here("indata","pop_med.xlsx"))
+
+pop_f$`15plus` <- rowSums(pop_f[10:27], na.rm = TRUE)
+pop_f$"15-24"  <- rowSums(pop_f[c("15-19", "20-24")], na.rm=TRUE)
+pop_f$"25-34"  <- rowSums(pop_f[c("25-29", "30-34")], na.rm=TRUE)
+pop_f$"35-44"  <- rowSums(pop_f[c("35-39", "40-44")], na.rm=TRUE)
+pop_f$"45-54"  <- rowSums(pop_f[c("45-49", "50-54")], na.rm=TRUE)
+
+
 
 pop_f <- pop_f %>% dplyr::rename(pop_f=Variant, country=`Region, subregion, country or area *`, year=`Reference date (as of 1 July)`)  %>%
-  select(c("country","pop_f", "year", "15-24", "25-34", "35-44", "45-54")) %>% gather(age_group, pop_f, c("15-24", "25-34", "35-44", "45-54"))
+  select(c("country","pop_f", "year", "15-24", "25-34", "35-44", "45-54", `15plus`)) %>% gather(age_group, pop_f, c("15-24", "25-34", "35-44", "45-54", `15plus`))
 pop_f$pop_f <- pop_f$pop_f*1000
 
-pop_f <- pop_f %>% filter(!country %in%
+pop_f1 <- pop_f %>% filter(age_group %in% c("15-24", "25-34", "35-44", "45-54")) %>% filter(country %in% df_1$country)
+pop_f2 <- pop_f %>% filter(country %in% df_2$country) %>% filter(age_group=="15plus")
+
+pop_f3 <- rbind(pop_f1, pop_f2)
+pop_f3 <- pop_f3 %>% filter(!country %in%
                             c("WORLD", "More developed regions",
                               "Less developed regions",
                               "Least developed countries",
@@ -211,8 +243,10 @@ pop_f <- pop_f %>% filter(!country %in%
                               "Micronesia",
                               "Polynesia"))
 
+length(unique(pop_f3$country))
+
 # Changing some country names to match the WHO TB data and ISO codes #
-pop_f$country <- (mapvalues((pop_f$country), from = c(
+pop_f3$country <- (mapvalues((pop_f3$country), from = c(
   "United Kingdom",
   "Dem. People's Republic of Korea",
   "Micronesia (Fed. States of)",
@@ -228,18 +262,32 @@ pop_f$country <- (mapvalues((pop_f$country), from = c(
     "North Macedonia",
     "Czech Republic")
 ))
-pop_f <- pop_f %>% left_join(ISO, by = "country") %>% select(iso3, age_group, year, pop_f)
 
-pop_f2017 <- pop_f %>% filter(year==2017) %>% select(-year) 
-num_births <- births_2017 %>% left_join(pop_f2017, by=c("iso3", "age_group")) %>% 
-  gather(metric, value, c("births_best", "births_lo", "births_hi"))
+pop_f3 <- pop_f3 %>% left_join(ISO, by = "country") %>% select(country, iso3, age_group, year, pop_f)
+length(unique(pop_f3$country))
+
+# missing_iso3 <- pop_f3 %>% filter(!country %in% ISO$country) %>% select(country, iso3) %>% filter(!duplicated(country))
+# pop_f3$iso3 <- as.character(pop_f3$iso3)
+# pop_f3 <- pop_f3 %>% mutate(iso3 = ifelse(country=="Mayotte", "MYT", 
+#                             ifelse(country=="Réunion", "REU",
+#                                    ifelse(country=="China, Taiwan Province of China", "TWN",
+#                                           ifelse(country=="Guadeloupe", "GLP",
+#                                                  ifelse(country=="Martinique", "MTQ",
+#                                                         ifelse(country=="United States Virgin Islands", "VIR",
+#                                                                ifelse(country=="French Guiana", "GUF",
+#                                                                       iso3))))))))
+
+pop_f2017 <- pop_f3 %>% filter(year==2017) %>% select(-year, -country) 
+num_births <- births_2017 %>% left_join(pop_f2017, by=c("iso3", "age_group")) %>% select(-country)
+# %>% 
+  # gather(metric, value, c("births_best", "births_lo", "births_hi"))
 # num_births$value <- num_births$pop_f * (num_births$value/1000) #  absolute number of births 
-num_births <- num_births %>% spread(metric, value) %>% select(-country)
+# num_births <- num_births %>% spread(metric, value) %>% select(-country)
 
 # combining the different datasets - births, population of females in the reproductive age and TB incident case in women in the reproductive age group
-new_df_births <- df_1 %>% select(country,iso3, iso_numeric, year, age_group, best, lo, hi) %>% left_join(num_births, by=c("iso3", "age_group")) %>%
-  dplyr::rename(TBI_best=best, TBI_lo=lo, TBI_hi=hi)
-new_df_births$g_whoregion[is.na(new_df_births$g_whoregion)] <- "AFR" # problem with Swaziland
+new_df_births <- df_3 %>% select(country,iso3, iso_numeric, year, age_group, best, lo, hi) %>% left_join(num_births, by=c("iso3", "age_group")) %>%
+  dplyr::rename(TBI_best=best, TBI_lo=lo, TBI_hi=hi) %>% filter(!is.na(g_whoregion))
+# new_df_births$g_whoregion[is.na(new_df_births$g_whoregion)] <- "AFR" # problem with Swaziland
 
 # df_2 <- ISO %>% select(-iso2, -iso3, -iso_numeric) %>% left_join(df, by="country")
 
@@ -320,68 +368,7 @@ summary_regions <- new_df_births%>%group_by(g_whoregion)%>%summarise_at(key_parm
 
 summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
 
-write.csv(summary_regions, here( "outdata", "Total number of incident tuberculosis cases in pregnant women.csv"))
-
-# Plot of TB incidence during pregnancy and postpartum for the WHO regions
-regions_plot <- summary_regions_byagegroup %>% 
-  select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
-  dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
-  gather(Period, value, c("Pregnancy", "Postpartum")) %>% 
-  # mutate(TBI_rate = value/births_best*1000) %>%  
-  ggplot(aes(x=age_group,y=value,fill=Period)) +
-  geom_bar(stat="identity",position="dodge") +
-  # scale_fill_discrete(name="variable",
-  #                     breaks=c(1, 2),
-  #                     labels=c("Pregnancy", "Postpartum")) +
-  xlab("Age in years")+ylab("Estimated number of TB incident cases (all forms)") + facet_wrap(~g_whoregion) +
-  theme(text = element_text(size=20),
-        axis.text.x = element_text(angle=45, hjust=1))+
-  scale_y_continuous(labels = comma)
-
-# Plot of TB incidence during pregnancy and postpartum for the WHO regions
-# includes error bars based on low and hi values 
-regions <- summary_regions_byagegroup %>% 
-  select(g_whoregion, age_group, births_best, pregTBI_best, ppTBI_best) %>%
-  dplyr::rename(Pregnancy = pregTBI_best, Postpartum = ppTBI_best) %>%
-  gather(Period, best, c("Pregnancy", "Postpartum")) 
-  # mutate(TBI_rate = value/births_best*1000) 
-  
-  regions_lo <- summary_regions_byagegroup %>% 
-  select(g_whoregion, age_group, pregTBI_lo, ppTBI_lo) %>%
-  dplyr::rename(Pregnancy = pregTBI_lo, Postpartum = ppTBI_lo) %>%
-  gather(Period, lo, c("Pregnancy", "Postpartum"))
-
-regions_hi <- summary_regions_byagegroup %>% 
-  select(g_whoregion, age_group, pregTBI_hi, ppTBI_hi) %>%
-  dplyr::rename(Pregnancy = pregTBI_hi, Postpartum = ppTBI_hi) %>%
-  gather(Period, hi, c("Pregnancy", "Postpartum"))
-
-regions_hilo <- regions_lo %>% left_join(regions_hi, by=c("g_whoregion", "age_group", "Period"))
-
-regions_hilo <- regions_hilo %>% left_join(regions, by=c("g_whoregion", "age_group", "Period"))
-
-regions_plot2 <- regions_hilo%>%  
-  ggplot(aes(x=age_group,y=best,fill=Period)) +
-  geom_bar(stat="identity",position="dodge") +
-  # scale_fill_discrete(name="variable",
-  #                     breaks=c(1, 2),
-  #                     labels=c("Pregnancy", "Postpartum")) +
-  xlab("Age in years")+ylab("Estimated number of TB incident cases (all forms)") + facet_wrap(~g_whoregion) +
-  theme(text = element_text(size=20),
-        axis.text.x = element_text(angle=45, hjust=1))+
-  scale_y_continuous(labels = comma) + 
-    geom_errorbar(aes(ymin=lo, ymax=hi), width=.2,
-                                                     position=position_dodge(.9))
-
-# save plots as svg # open in inkspace and save as emf for import into powerpoint
-ggsave(plot=regions_plot,filename=here("plots/TB incidence.svg"),
-       width=10, height=8, dpi=400)
-ggsave(plot=regions_plot2,filename=here("plots/TB incidence.svg"),
-       width=10, height=8, dpi=400)
-ggsave(plot=regions,filename=here("plots/TB incidence.pdf"),
-       width=10, height=8)
-# summary_SEA <- new_df_births%>%filter(g_whoregion=="SEA")%>%group_by(country)%>%
-#   summarise_at(key_parms, funs(sum), na.rm=T)
+write.csv(summary_regions, here::here( "outdata", "Total number of incident tuberculosis cases in pregnant women.csv"))
 
 # The 30 TB high burden countries
 hbc <- c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", 
@@ -390,4 +377,4 @@ hbc <- c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republi
 
 summary_hbc <- new_df_births %>% filter(country %in% hbc) %>% group_by(country)%>%summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
-write.csv(summary_hbc, here( "outdata", "Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO.csv"))
+write.csv(summary_hbc, here::here( "outdata", "Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO.csv"))
