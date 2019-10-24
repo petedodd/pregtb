@@ -1,9 +1,9 @@
 # Meta analysis excluding data from Bothamley study - post-partum
 
-setwd("U:/Documents/GitHub/pregtb")
+# setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here::here("metaanalysis","meta_data prep.R"))
 
 
 # Fixed-Effects Model - Bothamley data excluded
