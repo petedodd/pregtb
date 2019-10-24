@@ -6,7 +6,7 @@
 setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here::here("metaanalysis","meta_data prep.R"))
 
 dev.off()
 ### decrease margins so the full space is used
@@ -14,12 +14,13 @@ par(mar=c(4,4,1,2))
 
 ### fit random-effects model (use slab argument to define study labels)
 res <- rma(yi=yi,vi=vi,data=DRPP,
+           subset=(Full_study=="Yes"),
            slab=paste(FA, country, year, sep=", "))
 
 pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_post-partum.pdf")
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 31),
-       order=order(DR[,Full_study], DR[,HIV]) ,rows=c(3:14,19:21, 26:27), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
+forest(res, xlim = c(-16,10), at=log(c(0.02, 0.25, 1, 3, 7)), atransf=exp,  cex=0.75, ylim=c(-1, 16),
+       order=order(DRPPF[,Full_study], DRPPF[,HIV]) ,rows=c(3:4,9:11), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",

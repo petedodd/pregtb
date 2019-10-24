@@ -3,10 +3,10 @@
 # Includes studies with HIV - sub-groups
 
 
-setwd("U:/Documents/GitHub/pregtb")
-# setwd("~/Documents/GitHub/pregTB")
+# setwd("U:/Documents/GitHub/pregtb")
+# # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here::here("metaanalysis","meta_data prep.R"))
 
 dev.off()
 ### decrease margins so the full space is used

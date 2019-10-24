@@ -21,11 +21,11 @@ DPP <- fread(here::here("metaanalysis", "data", 'datapp.csv'))
 names(D)
 
 # All studies pregnancy
-DR <- D[,.(FA,Full_study, country, year,HIV,IRR,sample,a,b,c,d,m,mlo,mhi)]
+DR <- D[,.(FA,Full_study, country, year,HIV,IRR,Sample, pregYTBY, pregNTBY, pregYTBN, pregNTBN,m,mlo,mhi)]
 DR <- DR[!is.na(m)]
 DR
-DR$pregnant <- as.numeric(DR$a) + as.numeric(DR$c)
-DR$Notpregnant <- as.numeric(DR$b) + as.numeric(DR$d)
+DR$pregnant <- as.numeric(DR$pregYTBY) + as.numeric(DR$pregYTBN)
+DR$Notpregnant <- as.numeric(DR$pregNTBY) + as.numeric(DR$pregNTBN)
 
 DR[,yi:=log(m)]
 DR[,si:=(log(mhi)-log(mlo))/3.92]
@@ -37,14 +37,14 @@ DRF <- DR[Full_study!="No"]
 DRB <- DR[Full_study!="Yes"]
 
 # All studies postpartum
-DRPP <- DPP[,.(FA,Full_study, country, year,HIV,IRR,m,mlo,mhi)]
+DRPP <- DPP[,.(FA,Full_study, country, year,HIV,IRR,Sample, ppYTBY, ppNTBY, ppYTBN, ppNTBN,m,mlo,mhi)]
 DRPP <- DRPP[!is.na(m)]
 DRPP
 
 DRPP[,yi:=log(m)]
 DRPP[,si:=(log(mhi)-log(mlo))/3.92]
 DRPP[,vi:=si^2]
-
+DRPPF <- DRPP[Full_study!='No']
 # No HIV studies postpartum
 DRPPH <- DRPP[HIV!='yes']
 
