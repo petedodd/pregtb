@@ -16,7 +16,7 @@ par(mar=c(4,4,1,2))
 res.FE <- rma(yi=yi,vi=vi,data=DRPP, subset=(Full_study=="Yes"),
            slab=paste(FA, country, year, sep=", "), method="FE")
 
-pdf(file=here::here("metaanalysis/plots/Forest Plot withoutBothamley_pp.emp"))
+# pdf(file=here::here("metaanalysis/plots/Forest Plot withoutBothamley_pp.emp"))
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res.FE, xlim = c(-20,10), at=log(c(0.02, 0.25, 1, 3, 7)), atransf=exp,
        ilab=cbind(DRPP$ppYTBY, DRPP$ppYTBN, DRPP$ppNTBY, DRPP$ppNTBN),

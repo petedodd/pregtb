@@ -69,7 +69,7 @@ df_iso <- df_ISO %>% left_join(df, by=c("country", "iso3"))
 df_1 <- df_iso %>% filter(sex=="f", age_group %in% c("15-24", "25-34", "35-44", "45-54")) 
 df_1$W <- df_1$hi - df_1$lo
 
-## PJD: proportion of TB within each age group in region??
+## PJD: proportion of TB within each age group in region?? - Yes please
 regional_prop <- df_1 %>%
   dplyr::group_by(g_whoregion, age_group) %>%
   dplyr::summarise(sum_best_age=sum(best, na.rm = T),
@@ -100,6 +100,7 @@ regional_prop$prop_hi <- regional_prop$prop_best + regional_prop$propW/2
 df_2 <- df_iso %>% dplyr::filter(!country %in% df_1$country) %>%
   dplyr::filter(sex=="f", age_group=="15plus")
 
+# countries with missing age disaggregated data 
 temp <- cbind(data.frame(country=rep(df_2$country, 4),
                          age_group=c("15-24", "25-34", "35-44", "45-54")))
 df_2 <- df_2 %>% select(-age_group) %>% left_join(temp, by="country")
@@ -246,7 +247,7 @@ length(unique(births_2$country))
 #                                                                              ifelse(country=="French Guiana", "GUF",
 #                                                                                     iso3))))))))
 # filter 2017 data to match the WHO TB data 
-births_2017 <- births_2 %>% filter(year==2018) %>%
+births_2017 <- births_2 %>% filter(year==2017) %>%
   select(country,iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
 length(unique(births_2017$country))
 # read in population of females in the reproductive age group
@@ -358,7 +359,7 @@ length(unique(pop_f2$country))
 #                                                                ifelse(country=="French Guiana", "GUF",
 #                                                                       iso3))))))))
 
-pop_f2017 <- pop_f2 %>% filter(year==2018) %>% select(-year, -country) 
+pop_f2017 <- pop_f2 %>% filter(year==2017) %>% select(-year, -country) 
 num_births <- births_2017 %>% left_join(pop_f2017, by=c("iso3", "age_group")) %>%
   select(-country)
 # %>% 
@@ -486,11 +487,11 @@ summary_regions2 <- new_df_births%>%
 ## add hi/lo
 summary_regions2$pregTBI_lo <- summary_regions2$pregTBI_best -
   sqrt(summary_regions2$pregTBIwidthSq)/2
-summary_regions2$pregTBI_best <- summary_regions2$pregTBI_best +
+summary_regions2$pregTBI_hi <- summary_regions2$pregTBI_best + # NM changed this from best to hi
   sqrt(summary_regions2$pregTBIwidthSq)/2
 summary_regions2$ppTBI_lo <- summary_regions2$ppTBI_best -
   sqrt(summary_regions2$ppTBIwidthSq)/2
-summary_regions2$ppTBI_best <- summary_regions2$ppTBI_best +
+summary_regions2$ppTBI_hi <- summary_regions2$ppTBI_best +  # NM changed this from best to hi
   sqrt(summary_regions2$ppTBIwidthSq)/2
 
 

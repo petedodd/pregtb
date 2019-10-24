@@ -413,7 +413,7 @@ key_parms <- c("pregTBI_best",
                "ppTBI_lo", "ppTBI_hi")
 
 
-summary_regions2 <- new_df_births%>%dplyr::group_by(g_whoregion)%>%dplyr::summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
+summary_regions <- new_df_births%>%dplyr::group_by(g_whoregion)%>%dplyr::summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
 
 summary_regions_byagegroup <- new_df_births%>%group_by(g_whoregion, age_group)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
 

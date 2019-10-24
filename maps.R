@@ -18,7 +18,7 @@ summary_countries <- as.data.frame(summary_countries)
 plot_df <- getTBinR::who_shapefile %>% 
   left_join(summary_countries, c("id" = "iso3"))
 # plot_df$pregTBI_best_r <- ifelse(is.na(plot_df$pregTBI_best_r), 0, plot_df$pregTBI_best_r)
-
+length(unique(plot_df$country))
 
 theme_bare <- theme(
   axis.line = element_blank(), 
