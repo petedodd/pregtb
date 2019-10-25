@@ -148,7 +148,8 @@ births <- separate(births, Period, c("from", "to"))
 births$to <- as.numeric(births$to)-1
 births$year <- mapply(seq,births$from,births$to,SIMPLIFY=FALSE)
 births$estimate <- (births$estimate*1000)/5
-births <- births %>% 
+
+births <- births %>%
   unnest(year) %>% 
   select(-from,-to) %>% 
   spread(Variant, estimate)
@@ -486,11 +487,11 @@ summary_regions2 <- new_df_births%>%
 ## add hi/lo
 summary_regions2$pregTBI_lo <- summary_regions2$pregTBI_best -
   sqrt(summary_regions2$pregTBIwidthSq)/2
-summary_regions2$pregTBI_best <- summary_regions2$pregTBI_best +
+summary_regions2$pregTBI_hi <- summary_regions2$pregTBI_best +
   sqrt(summary_regions2$pregTBIwidthSq)/2
 summary_regions2$ppTBI_lo <- summary_regions2$ppTBI_best -
   sqrt(summary_regions2$ppTBIwidthSq)/2
-summary_regions2$ppTBI_best <- summary_regions2$ppTBI_best +
+summary_regions2$ppTBI_hi <- summary_regions2$ppTBI_best +
   sqrt(summary_regions2$ppTBIwidthSq)/2
 
 
@@ -520,11 +521,11 @@ summary_hbc <- new_df_births %>%
 ## add hi/lo
 summary_hbc$pregTBI_lo <- summary_hbc$pregTBI_best -
   sqrt(summary_hbc$pregTBIwidthSq)/2
-summary_hbc$pregTBI_best <- summary_hbc$pregTBI_best +
+summary_hbc$pregTBI_hi <- summary_hbc$pregTBI_best +
   sqrt(summary_hbc$pregTBIwidthSq)/2
 summary_hbc$ppTBI_lo <- summary_hbc$ppTBI_best -
   sqrt(summary_hbc$ppTBIwidthSq)/2
-summary_hbc$ppTBI_best <- summary_hbc$ppTBI_best +
+summary_hbc$ppTBI_hi <- summary_hbc$ppTBI_best +
   sqrt(summary_hbc$ppTBIwidthSq)/2
 
 write.csv(summary_hbc,
