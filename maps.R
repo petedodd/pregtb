@@ -1,13 +1,14 @@
 
 
 source(here::here("pregTB_births.R"))
+
 library(ggplot2)
 library(getTBinR)
 library(scales)
 # prepare data 
 summary_countries <- new_df_births%>%group_by(country, iso3)%>%summarise_at(key_parms, funs(sum), na.rm=T) 
-# summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
-# summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
+summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
+summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
 
 summary_countries <- as.data.frame(summary_countries)
 
@@ -27,8 +28,8 @@ theme_bare <- theme(
   axis.ticks = element_blank(), 
   axis.title.x = element_blank(), 
   axis.title.y = element_blank(),
-  legend.text=element_text(size=12),
-  legend.title=element_text(size=16),
+  legend.text=element_text(size=16),
+  legend.title=element_text(size=18),
   panel.background = element_blank(),
   panel.border = element_rect(colour = "gray", fill=NA, size=0.5)
 )
@@ -66,6 +67,43 @@ postpartum <- ggplot(plot_df,
   guides(fill = guide_colorbar(title = "Estimated number of TB incident cases (all forms)", barwidth = 30)) +
   # labs(caption = "Source: World Health Organisation") +
   theme_bare
+
+# Pregnancy
+pregnancy1 <- ggplot(plot_df, 
+                    aes(x = long, 
+                        y = lat, 
+                        text = country,
+                        fill = pregTBI_best_r)) +
+  geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
+  coord_equal() +
+  ggthemes::theme_map() +
+  theme(legend.position = "bottom") +
+  scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
+  # ggtitle("Global burden of TB during pregnancy") +
+  guides(fill = guide_colourbar(title = "Estimated number of TB incident cases per 1000 pregnant women", barwidth = 23)) +
+  theme_bare
+
+
+# Postpartum
+postpartum2 <- ggplot(plot_df, 
+                     aes(x = long, 
+                         y = lat, 
+                         text = country,
+                         fill = ppTBI_best_r)) +
+  geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
+  coord_equal() +
+  ggthemes::theme_map() +
+  theme(legend.position = "bottom") +
+  scale_fill_gradientn(colours = c("#fee8c8","#e34a33"), na.value = na.value.forplot, 
+                       guide="colourbar")+
+                       # values=c(0,0.0024999991480808,0.05,4.5230826273651)^ 0.2313782,
+                       # limits=c(0,1.5001),breaks=c(0,0.05,4.5230826273651)^ 0.2313782, 
+                       # labels=c(0,1,1.5), geom_tile(aes(fill=ppTBI_best_r^0.2313782),colour="grey50", size=0.1)) +
+  # ggtitle("Global burden of TB during postpartum") +
+  guides(fill = guide_colorbar(title = "Estimated number of TB incident cases per 1000 pregnant women", barwidth = 23)) +
+  # labs(caption = "Source: World Health Organisation") +
+  theme_bare 
+  
 
 ggsave(plot=pregnancy,filename=here("plots/TB incidence map during pregnancy.svg"),
        width=10, height=8, dpi=600)

@@ -410,7 +410,7 @@ length(unique(new_df_births$country))
 
 key_parms <- c("pregTBI_best", 
                "pregTBI_lo", "pregTBI_hi", "ppTBI_best", 
-               "ppTBI_lo", "ppTBI_hi")
+               "ppTBI_lo", "ppTBI_hi", "births_best")
 
 
 summary_regions <- new_df_births%>%dplyr::group_by(g_whoregion)%>%dplyr::summarise_at(key_parms, funs(sum), na.rm=T) %>% adorn_totals("row")
