@@ -3,10 +3,10 @@
 # Includes studies with HIV
 
 
-setwd("U:/Documents/GitHub/pregtb")
-# setwd("~/Documents/GitHub/pregTB")
+source(here::here("metaanalysis", "R", "1.meta_data_prep.R"))
 
-source(here::here("metaanalysis","meta_data prep.R"))
+setkey(DRPP, Full_study, HIV)
+DRPP <- DRPP[site!=0 | is.na(site),]
 
 dev.off()
 ### decrease margins so the full space is used
@@ -14,13 +14,14 @@ par(mar=c(4,4,1,2))
 
 ### fit random-effects model (use slab argument to define study labels)
 res <- rma(yi=yi,vi=vi,data=DRPP,
-           subset=(Full_study=="Yes"),
+           # subset=(Full_study=="Yes"),
            slab=paste(FA, country, year, sep=", "))
 
-pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_post-partum.pdf")
+# pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_post-partum.pdf")
+pdf(file=here('metaanalysis/plots/ForestPlotWithBothamleyPPHIV.pdf'))
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res, xlim = c(-16,10), at=log(c(0.02, 0.25, 1, 3, 7)), atransf=exp,  cex=0.75, ylim=c(-1, 16),
-       order=order(DRPPF[,Full_study], DRPPF[,HIV]) ,rows=c(3:4,9:11), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
+forest(res, xlim = c(-16,10), at=log(c(0.02, 0.25, 1, 3, 7)), atransf=exp,  cex=0.75, ylim=c(-1, 30),
+       rows=c(3:14,  21, 19, 20, 26,25), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -34,15 +35,15 @@ op <- par(cex=0.75, font=4)
 
 
 ### add text for the subgroups
-text(-16, c(15,22,28), pos=4, c("Bothamley no HIV",
+text(-16, c(15,22,27), pos=4, c("Bothamley no HIV",
                                 "Without Bothamley no HIV",
                                 "Without Bothamley HIV"))
 ### switch to bold font
 par(font=2)
 
 ### add column headings to the plot
-text(-16,                30, "Author(s), Country and Year",  pos=4)
-text(10,                 30, "Incidence Rate Ratio [95% CI]", pos=2)
+text(-16,                29, "Author(s), Country and Year",  pos=4)
+text(10,                 29, "Incidence Rate Ratio [95% CI]", pos=2)
 
 ### set par back to the original settings
 par(op)
@@ -58,8 +59,8 @@ res.wbnohiv <- rma(yi=yi,vi=vi,data=DR,
 
 ### add summary polygons for the three subgroups
 addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
-addpoly(res.wbhiv, row= 17.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
-addpoly(res.wbnohiv, row= 24.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wbhiv, row= 23.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wbnohiv, row= 17.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
 
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic for subgroups
@@ -68,11 +69,11 @@ text(-16, 1.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.b$QE, digits=2, format="f")), ", df = ", .(res.b$k - res.b$p),
                                              ", p = ", .(formatC(res.b$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.b$I2, digits=1, format="f")), "%)")))
-text(-16, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
+text(-16, 23.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                               .(formatC(res.wbhiv$QE, digits=2, format="f")), ", df = ", .(res.wbhiv$k - res.wbhiv$p),
                                               ", p = ", .(formatC(res.wbhiv$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                               .(formatC(res.wbhiv$I2, digits=1, format="f")), "%)")))
-text(-16, 24.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
+text(-16, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                               .(formatC(res.wbnohiv$QE, digits=2, format="f")), ", df = ", .(res.wbnohiv$k - res.wbnohiv$p),
                                               ", p = ", .(formatC(res.wbnohiv$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                               .(formatC(res.wbnohiv$I2, digits=1, format="f")), "%)")))

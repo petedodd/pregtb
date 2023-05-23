@@ -6,18 +6,23 @@ usePackage <- function(p) {
   require(p, character.only = TRUE)
 }
 
+usePackage("here")
 usePackage("metafor") # Load "metafor" package
 usePackage("data.table")
 usePackage("meta")
 usePackage("dplyr")
-usePackage("here")
+
 ## usePackage("forestplot")
 
 # setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-D <- fread(here::here("metaanalysis", "data", "all_datan.csv"))
-DPP <- fread(here::here("metaanalysis", "data", 'datapp.csv'))
+# D <- fread(here::here("metaanalysis", "data", "all_datan.csv"))
+D <- fread(here::here("metaanalysis", "data", "all_datan_updated.csv"))
+
+# identical(D, D1)
+
+DPP <- fread(here::here("metaanalysis", "data", 'datapp_updated2.csv'))
 names(D)
 
 # All studies pregnancy
@@ -37,7 +42,7 @@ DRF <- DR[Full_study!="No"]
 DRB <- DR[Full_study!="Yes"]
 
 # All studies postpartum
-DRPP <- DPP[,.(FA,Full_study, country, year,HIV,IRR,Sample, ppYTBY, ppNTBY, ppYTBN, ppNTBN,m,mlo,mhi)]
+DRPP <- DPP[,.(FA,Full_study, site,country, year,HIV,IRR,Sample, ppYTBY, ppNTBY, ppYTBN, ppNTBN,m,mlo,mhi)]
 DRPP <- DRPP[!is.na(m)]
 DRPP
 

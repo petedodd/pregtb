@@ -6,9 +6,11 @@
 # setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source(here::here("metaanalysis","meta_data prep.R"))
+source(here::here("metaanalysis", "R", "1.meta_data_prep.R"))
 
 dev.off()
+# while (!is.null(dev.list()))  dev.off()
+# dev.set(dev.next())
 ### decrease margins so the full space is used
 par(mar=c(4,4,1,2))
 
@@ -16,11 +18,11 @@ par(mar=c(4,4,1,2))
 res.FE <- rma(yi=yi,vi=vi,data=DR, subset=(Full_study=="Yes"),
            slab=paste(FA, country, year, sep=", "), method="FE")
 
-pdf(file="U:/Documents/GitHub/pregtb/plots/Forest Plot withoutBothamley_preg.pdf")
+pdf(file=here('metaanalysis/plots/ForestPlotWithoutBothamleyPREG.pdf'))
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
 forest(res.FE, xlim = c(-20,10), at=log(c(0.05, 0.25, 1, 5)), atransf=exp,
        ilab=cbind(DR$pregYTBY, DR$pregYTBN, DR$pregNTBY, DR$pregNTBN),
-       ilab.xpos=c(-10,-7.5,-5.5,-3), cex=0.75, ylim=c(-2, 8),
+       ilab.xpos=c(-10,-7.5,-5.5,-3), cex=0.75, ylim=c(-2, 9),
        ilab.pos = 2,
        xlab="Incidence Risk Ratio", mlab="", psize=1, addcred = TRUE)
 
@@ -39,10 +41,10 @@ op <- par(cex=0.75, font=4)
 par(font=2)
 
 ### add column headings to the plot
-text(-20,                   6.5, "Author(s), Country and Year",  pos=4)
-text(10,                     6.5, "Incidence Risk Ratio [95% CI]", pos=2)
-text(c(-10.5,-8,-6,-3.5),    6.5, c("TB+", "TB-", "TB+", "TB-"))
-text(c(-9.25,-4.75),        7, c("Pregnant", "Nonpregnant"))
+text(-20,                    8.5, "Author(s), Country and Year",  pos=4)
+text(10,                     8.5, "Incidence Risk Ratio [95% CI]", pos=2)
+text(c(-10.5,-8,-6,-3.5),    8.5, c("TB+", "TB-", "TB+", "TB-"))
+text(c(-9.25,-4.75),         9.0, c("Pregnant", "Not pregnant"))
 
 ### set par back to the original settings
 par(op)

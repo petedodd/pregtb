@@ -3,7 +3,7 @@
 setwd("U:/Documents/GitHub/pregtb")
 # setwd("~/Documents/GitHub/pregTB")
 
-source("meta_data prep.R")
+source(here::here("metaanalysis", "R", "1.meta_data_prep.R"))
 
 # Fixed-Effects Model - Bothamley included (each site as a study)
 # Includes studies with HIV

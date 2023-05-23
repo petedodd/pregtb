@@ -6,8 +6,9 @@
 # setwd("U:/Documents/GitHub/pregtb")
 # # setwd("~/Documents/GitHub/pregTB")
 
-source(here::here("metaanalysis","meta_data prep.R"))
+source(here::here("metaanalysis", "R", "1.meta_data_prep.R"))
 
+setkey(DR, Full_study, HIV)
 dev.off()
 ### decrease margins so the full space is used
 par(mar=c(4,4,1,2))
@@ -16,10 +17,11 @@ par(mar=c(4,4,1,2))
 res <- rma(yi=yi,vi=vi,data=DR,
            slab=paste(FA, country, year, sep=", "), method="REML")
 
-pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_pregnancy.pdf")
+# pdf(file="U:/Documents/GitHub/pregtb/plots/Bothamley included HIV sub-groups_pregnancy.pdf")
+pdf(file=here('metaanalysis/plots/ForestPlotWithBothamleyPREGHIV.pdf'))
 ### rows argument is used to specify exactly in which rows the outcomes will be plotted)
-forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 31),
-       order=order(DR[,Full_study], DR[,HIV]) ,rows=c(3:14,19:21, 26:27), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
+forest(res, xlim = c(-16,10), at=log(c(0.0001,0.02, 0.14, 7.39, 54.6)), atransf=exp,  cex=0.75, ylim=c(-1, 32),
+       rows=c(3:14, 22,20,19,21, 28,27), xlab="Incidence Rate Ratio", mlab="", psize=1, addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic
 text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
@@ -32,7 +34,7 @@ text(-16, -1, pos=4, cex=0.75, bquote(paste("RE Model for All Studies (Q = ",
 op <- par(cex=0.75, font=4)
 
 ### add text for the subgroups
-text(-16, c(15,22,28), pos=4, c("Bothamley no HIV",
+text(-16, c(15,23,29), pos=4, c("Bothamley no HIV",
                                "Without Bothamley no HIV",
                              "Without Bothamley HIV"))
 
@@ -40,8 +42,8 @@ text(-16, c(15,22,28), pos=4, c("Bothamley no HIV",
 par(font=2)
 
 ### add column headings to the plot
-text(-16,                30, "Author(s), Country and Year",  pos=4)
-text(10,                 30, "Incidence Rate Ratio [95% CI]", pos=2)
+text(-16,                31, "Author(s), Country and Year",  pos=4)
+text(10,                 31, "Incidence Rate Ratio [95% CI]", pos=2)
 
 ### set par back to the original settings
 par(op)
@@ -57,8 +59,8 @@ res.wbnohiv <- rma(yi=yi,vi=vi,data=DR,
 
 ### add summary polygons for the three subgroups
 addpoly(res.b, row=1.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
-addpoly(res.wbhiv, row= 17.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
-addpoly(res.wbnohiv, row= 24.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wbhiv, row= 25.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
+addpoly(res.wbnohiv, row= 17.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)
 
 ### add text with Q-value, dfs, p-value, and I^2 statistic for subgroups
 
@@ -70,7 +72,7 @@ text(-16, 17.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                              .(formatC(res.wbhiv$QE, digits=2, format="f")), ", df = ", .(res.wbhiv$k - res.wbhiv$p),
                                              ", p = ", .(formatC(res.wbhiv$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                              .(formatC(res.wbhiv$I2, digits=1, format="f")), "%)")))
-text(-16, 24.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
+text(-16, 25.5, pos=4, cex=0.75, bquote(paste("RE Model for Subgroup (Q = ",
                                               .(formatC(res.wbnohiv$QE, digits=2, format="f")), ", df = ", .(res.wbnohiv$k - res.wbnohiv$p),
                                               ", p = ", .(formatC(res.wbnohiv$QEp, digits=2, format="f")), "; ", I^2, " = ",
                                               .(formatC(res.wbnohiv$I2, digits=1, format="f")), "%)")))
