@@ -51,7 +51,7 @@ par(op)
 
 ### fit fixed-effects model in the three subgroups
 res.RE <- rma(yi=yi,vi=vi,data=DR,
-             subset=(Full_study=="Yes"), method = "REML")
+             subset=(Full_study=="Yes"), method = "PM")
 
 ### add summary polygons for the three subgroups
 addpoly(res.RE, row=-1.5, cex=0.75, atransf=exp, mlab="", addcred = TRUE)

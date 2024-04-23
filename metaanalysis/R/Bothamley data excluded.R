@@ -1,9 +1,8 @@
+
 # Meta analysis excluding data from Bothamley study
+library(here)
 
-setwd("U:/Documents/GitHub/pregtb")
-# setwd("~/Documents/GitHub/pregTB")
-
-source("meta_data prep.R")
+source(here("metaanalysis/R/1.meta_data_prep.R"))
 
 
 # Fixed-Effects Model - Bothamley data excluded
