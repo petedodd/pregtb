@@ -13,7 +13,6 @@ sessionInfo() # gives session info, ver of R, packages
 rm(list = ls()) # removes work space environment
 
 library(readxl)
-# library(data.table)
 library(tidyverse)
 library(viridis)
 library(here)
@@ -23,13 +22,9 @@ library(janitor)
 library(countrycode)
 library(countries)
 
-
-## setwd("U:/Documents/GitHub/pregTB")
-# setwd("~/Documents/GitHub/pregtb")
-
 # load ISO country codes
 load(here::here("TBburden/indata/isodict.Rdata"))
-code <- read_csv(here::here("TBburden/indata", "all.csv")) # has more details on codes
+code <- read_csv(here::here("TBburden/indata", "all.csv")) # more codes details
 code <- code %>%
   dplyr::rename(country = name, iso3 = `alpha-3`) %>%
   select(country, `country-code`, iso3, region, `sub-region`)
@@ -40,6 +35,7 @@ ISO$country[ISO$country == "Czech Republic"] <- "Czechia"
 ISO$country[ISO$country == "Serbia & Montenegro"] <- "Serbia"
 ISO$country[ISO$country == "Swaziland"] <- "Eswatini"
 ISO$country[ISO$country == "The Former Yugoslav Republic of Macedonia"] <- "North Macedonia"
+
 names(ISO)
 names(code)
 head(code)
@@ -47,41 +43,40 @@ setdiff(ISO$country, code$country)
 setdiff(code$country, ISO$country)
 table(ISO$g_whoregion, useNA = "always")
 
-ISO <- ISO |> 
-  mutate(country = countrycode(country, origin = 'country.name', destination = 'country.name'))
-code <- code |> 
-  mutate(country = countrycode(country, origin = 'country.name', destination = 'country.name'))
+ISO <- ISO |>
+  mutate(country = countrycode(country, origin = "country.name", destination = "country.name"))
+code <- code |>
+  mutate(country = countrycode(country, origin = "country.name", destination = "country.name"))
 
 setdiff(ISO$country, code$country)
 setdiff(code$country, ISO$country)
 
-ISOS <- code %>% 
-  select(country, iso3, region, sub_region=`sub-region`) |> 
+ISOS <- code %>%
+  select(country, iso3, region, sub_region = `sub-region`) |>
   left_join(ISO, by = c("country", "iso3")) |>
-  select(country, iso2, iso3, region, sub_region, g_whoregion) 
+  select(country, iso2, iso3, region, sub_region, g_whoregion)
 
-
-ISOS |> 
-  filter(is.na(g_whoregion)) 
-ISOS |> 
-  filter(is.na(iso3)) 
+ISOS |>
+  filter(is.na(g_whoregion))
+ISOS |>
+  filter(is.na(iso3))
 
 table(ISOS$g_whoregion, ISOS$region, useNA = "always")
 
-ISOS |> 
-  filter(is.na(g_whoregion) & region == "Africa") 
-ISOS |> 
-  filter(is.na(g_whoregion) & region == "Americas") 
-ISOS |> 
+ISOS |>
+  filter(is.na(g_whoregion) & region == "Africa")
+ISOS |>
+  filter(is.na(g_whoregion) & region == "Americas")
+ISOS |>
   filter(is.na(g_whoregion) & region == "Europe")
-ISOS |> 
+ISOS |>
   filter(is.na(g_whoregion) & region == "Asia")
-ISOS |> 
+ISOS |>
   filter(is.na(g_whoregion) & region == "Oceania")
-ISOS |> 
-  filter(g_whoregion=='EMR')
+ISOS |>
+  filter(g_whoregion == "EMR")
 
-ISOS <- ISOS |> 
+ISOS <- ISOS |>
   mutate(g_whoregion = case_when(
     region == "Africa" ~ "AFR",
     region == "Americas" ~ "AMR",
@@ -89,23 +84,17 @@ ISOS <- ISOS |>
     region == "Asia" ~ "SEA",
     region == "Oceania" ~ "WPR",
     TRUE ~ NA_character_
-  )) 
+  ))
 
 table(ISOS$g_whoregion, ISOS$region, useNA = "always")
-ISOS |> 
+ISOS |>
   filter(is.na(g_whoregion))
-
-# SM <- code %>%
-#   filter(country %in% c("Serbia", "Montenegro")) %>%
-#   select(country, iso3, `sub-region`)
-# names(SM)[3] <- "g_whoregion"
-# SM$g_whoregion[SM$g_whoregion == "Southern Europe"] <- "EUR"
 
 # read in WHO TB data disaggregated by age and sex
 # read in the data dictionary
 # Estimated number of incident cases (all forms) - Worked it out from the main dataset???
 if (!file.exists(here::here("TBburden/indata/df2022.Rdata"))) {
-  df <- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = T)
+  df <- read.csv("https://extranet.who.int/tme/generateCSV.asp?ds=estimates_age_sex", header = TRUE)
   save(df, file = here::here("TBburden/indata/df2022.Rdata"))
 } else {
   load(here::here("TBburden/indata/df2022.Rdata"))
@@ -120,14 +109,7 @@ if (!file.exists(here::here("TBburden/indata/df_dic.Rdata"))) {
 }
 
 # Filter females of reproductive age group
-
-
-# df_ISO <- ISOS %>% 
-#   select(country, iso3, g_whoregion) %>%
-#   filter(!country %in% SM$country)
-# df_ISO <- rbind(df_ISO, SM)
-
-df_ISO <- ISOS %>% 
+df_ISO <- ISOS %>%
   select(country, iso3, g_whoregion)
 
 setdiff(df$country, df_ISO$country)
@@ -137,79 +119,67 @@ length(unique(df$country))
 length(unique(df_ISO$country))
 
 # Update country names: going with the WHO names for now
-# df_ISO <- df_ISO %>%
-#   mutate(country = recode(
-#     country,
-#     "Netherlands" = "Netherlands (Kingdom of the)",
-#     "West Bank and Gaza Strip" = "occupied Palestinian territory, including east Jerusalem",
-#     "Turkey" = "Türkiye",
-#     "Wallis and Futuna Islands" = "Wallis and Futuna"
-#   ))
 
 #' TODO: look at `auto_merge` from `countries` package
-# z2 <- auto_merge(df |> select(-iso2), ISO, by = c("country"), country_to = "UN_en", merging_info = FALSE)
+# z2 <- auto_merge(df |>
+#                    select(-iso2), ISO,
+#                  by = c("country"),
+#                  country_to = "UN_en",
+#                  merging_info = FALSE)
 # z2 |> filter(is.na(iso3))
-# setdiff(ISO$country, df$country)
-# setdiff(df$country, ISO$country)
 
-df <- df %>% 
-  mutate(country = countrycode(country, origin = 'country.name', destination = 'country.name'))
+df <- df %>%
+  mutate(country = countrycode(country,
+    origin = "country.name",
+    destination = "country.name"
+  ))
 
 
 setdiff(df$country, df_ISO$country)
 setdiff(df_ISO$country, df$country)
 
-df_iso <- df_ISO %>% left_join(df, by = c("country", "iso3"))
+df_iso <- df_ISO %>%
+  left_join(df, by = c("country", "iso3"))
 
-df_1 <- df_iso %>% filter(sex == "f", age_group %in% c("15-24", "25-34", "35-44", "45-54"))
-
+df_1 <- df_iso %>%
+  filter(
+    sex == "f",
+    age_group %in% c("15-24", "25-34", "35-44", "45-54")
+  )
 regional_prop <- df_1 %>%
   dplyr::group_by(g_whoregion, age_group) %>%
-  dplyr::summarise(sum_best_age = sum(best, na.rm = T), sum_lo_age = sum(lo, na.rm = T), sum_hi_age = sum(hi, na.rm = T)) %>%
+  dplyr::summarise(
+    sum_best_age = sum(best, na.rm = T),
+    sum_lo_age = sum(lo, na.rm = T),
+    sum_hi_age = sum(hi, na.rm = T)
+  ) %>%
   dplyr::ungroup() %>%
   dplyr::group_by(g_whoregion) %>%
   dplyr::mutate(
-    sum_best_over = sum(sum_best_age, na.rm = T), sum_lo_over = sum(sum_lo_age, na.rm = T),
+    sum_best_over = sum(sum_best_age, na.rm = T),
+    sum_lo_over = sum(sum_lo_age, na.rm = T),
     sum_hi_over = sum(sum_hi_age, na.rm = T)
   ) %>%
   # dplyr::ungroup() %>% dplyr::group_by(g_whoregion, age_group) %>%
-  dplyr::mutate(prop_best = sum_best_age / sum_best_over, prop_lo = sum_lo_age / sum_lo_over, prop_hi = sum_hi_age / sum_hi_over)
+  dplyr::mutate(
+    prop_best = sum_best_age / sum_best_over,
+    prop_lo = sum_lo_age / sum_lo_over,
+    prop_hi = sum_hi_age / sum_hi_over
+  )
 
-# df_2 <- df_iso %>%
-#   dplyr::filter(!country %in% df_1$country) %>%
-#   dplyr::filter(sex == "f", age_group == "15plus")
+df_2 <- df_1
 
-# temp <- cbind(data.frame(country = rep(df_2$country, 4), age_group = c("15-24", "25-34", "35-44", "45-54")))
-# 
-# df_2 <- df_2 %>%
-#   select(-age_group) %>%
-#   left_join(temp, by = "country")
-# df_2 <- ISO %>% select(country, iso3, g_whoregion) %>% left_join(df_1, by=c("country", "iso3"))
-
-# df_2 <- df_1
-# df_2 <- regional_prop %>%
-#   select(g_whoregion, age_group, prop_best, prop_lo, prop_hi) %>%
-#   left_join(df_2, by = c("g_whoregion", "age_group"))
-# df_2 <- df_2 %>%
-#   mutate(best = best * prop_best, lo = lo * prop_lo, hi = hi * prop_hi) %>%
-#   select(-c("prop_best", "prop_lo", "prop_hi"))
-# 
-# df_3 <- df_2 %>% select(country, iso3, g_whoregion, iso2, iso_numeric, year, measure, unit, age_group, sex, best, lo, hi)
-# 
-# df_3 <- as.data.frame(df_3)
-# df_3 <- rbind(df_1, df_3)
-df_3 <- df_1
-
-length(unique(df_3$country)) # now 215, used to be 216
+length(unique(df_2$country)) # now 215, used to be 216
 
 # Births by age of mother
 # Births by five-year age group of mother, region, subregion and country, 1950-2100 (thousands)
+
 # TODO: to check this new data ->> how to include uncertainty
-# BD <- data.table::fread('~/Downloads/WPP2024_Fertility_by_Age5.csv.gz') 
+# BD <- data.table::fread('~/Downloads/WPP2024_Fertility_by_Age5.csv.gz')
 # print(object.size(BD),units='auto')
 # # table(BD$Time)
 # table(BD$Variant)
-# # BD <- BD[Time==2022] 
+# # BD <- BD[Time==2022]
 # BD[,unique(ISO3_code)]
 # BD <- BD[ISO3_code!=""] # these do not include uncertainty
 # BDM <- BD[Variant=="Medium" & Time==2024]
@@ -217,12 +187,15 @@ length(unique(df_3$country)) # now 215, used to be 216
 # BDH <- BD[Variant=="High" & Time==2024]
 
 # Using 2020-2025 projections from WPP2019 data
-WPP2019_BAGEM <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"), 
-                            sheet = "MEDIUM VARIANT", skip = 16) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
-WPP2019_BAGEL <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"), 
-                            sheet = "LOW VARIANT", skip = 16) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
-WPP2019_BAGEH <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"), 
-                            sheet = "HIGH VARIANT", skip = 16) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
+WPP2019_BAGEM <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
+  sheet = "MEDIUM VARIANT", skip = 16
+) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
+WPP2019_BAGEL <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
+  sheet = "LOW VARIANT", skip = 16
+) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
+WPP2019_BAGEH <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
+  sheet = "HIGH VARIANT", skip = 16
+) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
 
 names(WPP2019_BAGEM)
 WPP2019_BAGEL
@@ -237,20 +210,21 @@ for (k in 1:length(names(births))) { # convert all the rows with type 'integer' 
 }
 
 names(births)[3] <- "country"
-births |> 
-  filter(`Country code`>900) |> 
-  select(country) |> distinct()
+births |>
+  filter(`Country code` > 900) |>
+  select(country) |>
+  distinct()
 
 
-# 
-births <- births |> 
+#
+births <- births |>
   pivot_longer(cols = -c(1:8), names_to = "age", values_to = "value") |>
-  mutate(value = as.numeric(value)) |> 
-  pivot_wider(names_from = age, values_from = value) 
+  mutate(value = as.numeric(value)) |>
+  pivot_wider(names_from = age, values_from = value)
 
 
 # recategorizing age groups to match the WHO TB data
-table(df_3$age_group)
+table(df_2$age_group)
 
 # births$`15plus` <- rowSums(births[7:13], na.rm = TRUE)
 births$"15-24" <- rowSums(births[c("15-19", "20-24")], na.rm = TRUE)
@@ -261,21 +235,21 @@ births$"45-54" <- births$`45-49`
 names(births)[3] <- "country"
 
 births
-births |> 
-  filter(country == "United Kingdom" & Period=='2020-2025')
+births |>
+  filter(country == "United Kingdom" & Period == "2020-2025")
 
 births <- births %>%
   select(-c("15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49")) %>%
-  pivot_longer(cols = -c(Index:Period), names_to = "age_group", values_to = "estimate") 
+  pivot_longer(cols = -c(Index:Period), names_to = "age_group", values_to = "estimate")
 
 births <- separate(births, Period, c("from", "to"))
 births$to <- as.numeric(births$to) - 1
 births$year <- mapply(seq, births$from, births$to, SIMPLIFY = FALSE)
 births$estimate <- (births$estimate * 1000) / 5 # convert to thousands
 
-# check 
-births |> 
-  filter(country == "United Kingdom" & year=='2020:2024' & Variant=='Medium variant') |>
+# check
+births |>
+  filter(country == "United Kingdom" & year == "2020:2024" & Variant == "Medium variant") |>
   summarise(sum(estimate, na.rm = T))
 
 births <- births %>%
@@ -283,72 +257,72 @@ births <- births %>%
   select(-from, -to) %>%
   spread(Variant, estimate)
 
-births |> 
-  filter(country == "United Kingdom" & year=='2020') |>
+births |>
+  filter(country == "United Kingdom" & year == "2020") |>
   summarise(sum(`Medium variant`, na.rm = T))
 
 births <- births %>% dplyr::rename(births_lo = `Low variant`, births_hi = `High variant`, births_best = `Medium variant`)
 
-births <- births |> 
-  filter(!`Country code`>900)
+births <- births |>
+  filter(!`Country code` > 900)
 births_1 <- births %>% filter(!tolower(country) %in%
-                              tolower(c(
-                                "WORLD", "More developed regions",
-                                "Less developed regions",
-                                "Least developed countries",
-                                "Less developed regions, excluding least developed countries",
-                                "Less developed regions, excluding China",
-                                "High-income countries",
-                                "Middle-income countries",
-                                "Upper-middle-income countries",
-                                "Lower-middle-income countries",
-                                "Low-income countries",
-                                "Sub-Saharan Africa",
-                                "AFRICA",
-                                "Eastern Africa",
-                                "Middle Africa",
-                                "Northern Africa",
-                                "Western Sahara",
-                                "Southern Africa",
-                                "Western Africa",
-                                "ASIA",
-                                "Eastern Asia",
-                                "South-Central Asia",
-                                "Central Asia",
-                                "Southern Asia",
-                                "South-Eastern Asia",
-                                "Western Asia",
-                                "EUROPE",
-                                "Eastern Europe",
-                                "Northern Europe",
-                                "Southern Europe",
-                                "Western Europe",
-                                "LATIN AMERICA AND THE CARIBBEAN",
-                                "Caribbean",
-                                "Central America",
-                                "South America",
-                                "NORTHERN AMERICA",
-                                "OCEANIA",
-                                "Australia/New Zealand",
-                                "Melanesia",
-                                "Micronesia",
-                                "Polynesia"
-                              )))
+  tolower(c(
+    "WORLD", "More developed regions",
+    "Less developed regions",
+    "Least developed countries",
+    "Less developed regions, excluding least developed countries",
+    "Less developed regions, excluding China",
+    "High-income countries",
+    "Middle-income countries",
+    "Upper-middle-income countries",
+    "Lower-middle-income countries",
+    "Low-income countries",
+    "Sub-Saharan Africa",
+    "AFRICA",
+    "Eastern Africa",
+    "Middle Africa",
+    "Northern Africa",
+    "Western Sahara",
+    "Southern Africa",
+    "Western Africa",
+    "ASIA",
+    "Eastern Asia",
+    "South-Central Asia",
+    "Central Asia",
+    "Southern Asia",
+    "South-Eastern Asia",
+    "Western Asia",
+    "EUROPE",
+    "Eastern Europe",
+    "Northern Europe",
+    "Southern Europe",
+    "Western Europe",
+    "LATIN AMERICA AND THE CARIBBEAN",
+    "Caribbean",
+    "Central America",
+    "South America",
+    "NORTHERN AMERICA",
+    "OCEANIA",
+    "Australia/New Zealand",
+    "Melanesia",
+    "Micronesia",
+    "Polynesia"
+  )))
 unique(births_1$country)
 
 # Changing some country names to match the WHO TB data and ISO codes #
-setdiff(births_1$country, df_3$country)
-setdiff(df_3$country, births_1$country)
+setdiff(births_1$country, df_2$country)
+setdiff(df_2$country, births_1$country)
 
 length(unique(births_1$country))
-length(unique(df_3$country))
+length(unique(df_2$country))
 
 # Using the countrycode package to clean up country names
-births_1 <- births_1 %>% 
-  mutate(country = countrycode(country, origin = 'country.name', destination = 'country.name'))
+births_1 <- births_1 %>%
+  mutate(country = countrycode(country, origin = "country.name", destination = "country.name"))
 
-setdiff(births_1$country, df_3$country)
-setdiff(df_3$country, births_1$country)
+setdiff(births_1$country, df_2$country)
+setdiff(df_2$country, births_1$country)
 
 # births_1$country <- (mapvalues((births_1$country),
 #   from = c(
@@ -404,24 +378,27 @@ length(unique(births_2022$country))
 
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)
-pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"), 
-                           sheet = "MEDIUM VARIANT", skip = 16) # WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
+pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"),
+  sheet = "MEDIUM VARIANT", skip = 16
+) # WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
 
 names(pop_f)
 pop_f <- pop_f %>%
   dplyr::rename(pop_f = Variant, country = `Region, subregion, country or area *`, year = `Reference date (as of 1 July)`)
 
-pop_f |> 
-  filter(`Country code`>900) |> 
-  select(country) |> distinct() |> pull()
+pop_f |>
+  filter(`Country code` > 900) |>
+  select(country) |>
+  distinct() |>
+  pull()
 
-pop_f <- pop_f |> 
-  filter(!`Country code`>900)
+pop_f <- pop_f |>
+  filter(!`Country code` > 900)
 
-# 
-pop_f <- pop_f |> 
+#
+pop_f <- pop_f |>
   pivot_longer(cols = -c(Index:year), names_to = "age", values_to = "value") |>
-  mutate(value = as.numeric(value)) |> 
+  mutate(value = as.numeric(value)) |>
   pivot_wider(names_from = age, values_from = value)
 
 # pop_f$`15plus` <- rowSums(pop_f[10:27], na.rm = TRUE)
@@ -434,7 +411,7 @@ names(pop_f)
 pop_f <- pop_f %>%
   select(c("country", "pop_f", "year", "15-24", "25-34", "35-44", "45-54")) %>%
   gather(age_group, pop_f, c("15-24", "25-34", "35-44", "45-54"))
-pop_f$pop_f <- pop_f$pop_f * 1000 
+pop_f$pop_f <- pop_f$pop_f * 1000
 
 # pop_f1 <- pop_f %>% filter(age_group %in% c("15-24", "25-34", "35-44", "45-54")) #%>% filter(country %in% df_1$country)
 # pop_f2 <- pop_f %>% filter(country %in% df_2$country) %>% filter(age_group=="15plus")
@@ -488,8 +465,8 @@ pop_f1 <- pop_f %>% filter(!country %in%
 
 length(unique(pop_f1$country)) # 200
 
-pop_f1 <- pop_f1 %>% 
-  mutate(country = countrycode(country, origin = 'country.name', destination = 'country.name'))
+pop_f1 <- pop_f1 %>%
+  mutate(country = countrycode(country, origin = "country.name", destination = "country.name"))
 
 # b<- df_ISO %>% filter(!country %in% pop_f1$country)
 # pop_f1$country[grep("Wallis", pop_f1$country) ]
@@ -537,19 +514,19 @@ length(unique(pop_f2$country)) # 200
 #                                                                ifelse(country=="French Guiana", "GUF",
 #                                                                       iso3))))))))
 
-# (no_iso3 <- pop_f2 |> 
-#     filter(is.na(iso3)) |> 
-#     select(country) |> 
+# (no_iso3 <- pop_f2 |>
+#     filter(is.na(iso3)) |>
+#     select(country) |>
 #     distinct())
-# 
-# df_ISO |> 
+#
+# df_ISO |>
 #   filter(country %in% no_iso3$country)
-# no_iso3 <- code |> 
-#   filter(country %in% no_iso3$country) |> 
+# no_iso3 <- code |>
+#   filter(country %in% no_iso3$country) |>
 #   select(country, iso3) |>
-#   left_join(no_iso3, by = "country") 
-# 
-# 
+#   left_join(no_iso3, by = "country")
+#
+#
 # pop_f2022 <- pop_f2 %>%
 #   left_join(no_iso3, by = "country") %>%
 #   mutate(iso3 = coalesce(iso3.x, iso3.y)) %>%
@@ -559,28 +536,28 @@ length(unique(pop_f2$country)) # 200
 pop_f2022 <- pop_f2 %>%
   filter(year == 2022)
 
-# (no_iso3 <- births_2022 |> 
-#     filter(is.na(iso3)) |> 
-#     select(country) |> 
+# (no_iso3 <- births_2022 |>
+#     filter(is.na(iso3)) |>
+#     select(country) |>
 #     distinct())
-# 
-# no_iso3 <- code |> 
+#
+# no_iso3 <- code |>
 #   filter(country %in% no_iso3$country | grepl('Taiwan', country))  |>
 #   mutate(country = ifelse(grepl('Taiwan', country), 'China, Taiwan Province of China', country)) |>
-#   left_join(no_iso3, by = "country")|> 
-#   select(country, iso3, g_whoregion=region) 
-# 
+#   left_join(no_iso3, by = "country")|>
+#   select(country, iso3, g_whoregion=region)
+#
 # num_births <- births_2022 %>%
 #   left_join(no_iso3, by = "country") %>%
 #   mutate(iso3 = coalesce(iso3.x, iso3.y),
 #          g_whoregion = coalesce(g_whoregion.x, g_whoregion.y)) %>%
 #   left_join(pop_f2022, by = c("iso3", "age_group")) %>%
 #   filter(country!='Channel Islands') %>%
-#   select(-country, -iso3.x, -iso3.y, -g_whoregion.x, -g_whoregion.y) 
+#   select(-country, -iso3.x, -iso3.y, -g_whoregion.x, -g_whoregion.y)
 
 num_births <- births_2022 %>%
   left_join(pop_f2022, by = c("country", "iso3", "age_group")) %>%
-  filter(country!='Channel Islands') 
+  filter(country != "Channel Islands")
 
 table(num_births$g_whoregion)
 table(ISOS$g_whoregion)
@@ -592,15 +569,17 @@ table(ISOS$g_whoregion)
 #     .default = g_whoregion)
 #   )
 
-table(num_births$g_whoregion, useNA = 'always')
+table(num_births$g_whoregion, useNA = "always")
 length(unique(num_births$country))
 # %>%
 # gather(metric, value, c("births_best", "births_lo", "births_hi"))
 # num_births$value <- num_births$pop_f * (num_births$value/1000) #  absolute number of births
 # num_births <- num_births %>% spread(metric, value) %>% select(-country)
 
-# combining the different datasets - births, population of females in the reproductive age and TB incident case in women in the reproductive age group
-new_df_births <- df_3 %>%
+# combining the different datasets - 
+# births, population of females in the reproductive age and 
+# TB incident case in women in the reproductive age group
+new_df_births <- df_2 %>%
   select(country, iso3, iso_numeric, year, age_group, best, lo, hi) %>%
   left_join(num_births, by = c("country", "iso3", "age_group")) %>%
   dplyr::rename(TBI_best = best, TBI_lo = lo, TBI_hi = hi) %>%
@@ -610,8 +589,8 @@ length(unique(new_df_births$country)) # 192
 setdiff(unique(new_df_births$country), unique(num_births$country))
 setdiff(unique(num_births$country), unique(new_df_births$country))
 
-setdiff(unique(new_df_births$country), unique(df_3$country))
-setdiff(unique(df_3$country), unique(new_df_births$country))
+setdiff(unique(new_df_births$country), unique(df_2$country))
+setdiff(unique(df_2$country), unique(new_df_births$country))
 # new_df_births$g_whoregion[is.na(new_df_births$g_whoregion)] <- "AFR" # problem with Swaziland
 
 # df_2 <- ISO %>% select(-iso2, -iso3, -iso_numeric) %>% left_join(df, by="country")
@@ -729,4 +708,3 @@ summary_hbc_2022 <- new_df_births %>%
   adorn_totals("row")
 
 write.csv(summary_hbc_2022, here::here("TBburden/outdata", "Total number of incident active tuberculosis cases in pregnant women for the 30 high tuberculosis burden countries as classified by the WHO in 2022.csv"))
-
