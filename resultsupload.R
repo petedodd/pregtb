@@ -30,15 +30,3 @@ write_sheet(summary_age_2022_adjusted,shidneat,sheet = "adjusted_agegroup_estima
 write_sheet(population_2022,shidneat,sheet = "populationRAW")
 write_sheet(person_time,shidneat,sheet = "person_timeRAW")
 write_sheet(summary_countries_2022_adjusted,shidneat,sheet = "adjusted_country_estimatesRAW")
-
-
-
-
-
-
-
-
-
-
-
-
