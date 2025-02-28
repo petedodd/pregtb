@@ -17,8 +17,8 @@ library(tidyverse)
 library(viridis)
 library(here)
 library(dplyr)
-library(plyr)
-library(janitor)
+# library(plyr)
+# library(janitor)
 library(countrycode)
 library(countries)
 
@@ -130,8 +130,8 @@ length(unique(df_ISO$country))
 
 df <- df %>%
   mutate(country = countrycode(country,
-    origin = "country.name",
-    destination = "country.name"
+                               origin = "country.name",
+                               destination = "country.name"
   ))
 
 
@@ -188,13 +188,13 @@ length(unique(df_2$country)) # now 215, used to be 216
 
 # Using 2020-2025 projections from WPP2019 data
 WPP2019_BAGEM <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "MEDIUM VARIANT", skip = 16
+                            sheet = "MEDIUM VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
 WPP2019_BAGEL <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "LOW VARIANT", skip = 16
+                            sheet = "LOW VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
 WPP2019_BAGEH <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "HIGH VARIANT", skip = 16
+                            sheet = "HIGH VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
 
 names(WPP2019_BAGEM)
@@ -266,48 +266,48 @@ births <- births %>% dplyr::rename(births_lo = `Low variant`, births_hi = `High 
 births <- births |>
   filter(!`Country code` > 900)
 births_1 <- births %>% filter(!tolower(country) %in%
-  tolower(c(
-    "WORLD", "More developed regions",
-    "Less developed regions",
-    "Least developed countries",
-    "Less developed regions, excluding least developed countries",
-    "Less developed regions, excluding China",
-    "High-income countries",
-    "Middle-income countries",
-    "Upper-middle-income countries",
-    "Lower-middle-income countries",
-    "Low-income countries",
-    "Sub-Saharan Africa",
-    "AFRICA",
-    "Eastern Africa",
-    "Middle Africa",
-    "Northern Africa",
-    "Western Sahara",
-    "Southern Africa",
-    "Western Africa",
-    "ASIA",
-    "Eastern Asia",
-    "South-Central Asia",
-    "Central Asia",
-    "Southern Asia",
-    "South-Eastern Asia",
-    "Western Asia",
-    "EUROPE",
-    "Eastern Europe",
-    "Northern Europe",
-    "Southern Europe",
-    "Western Europe",
-    "LATIN AMERICA AND THE CARIBBEAN",
-    "Caribbean",
-    "Central America",
-    "South America",
-    "NORTHERN AMERICA",
-    "OCEANIA",
-    "Australia/New Zealand",
-    "Melanesia",
-    "Micronesia",
-    "Polynesia"
-  )))
+                                tolower(c(
+                                  "WORLD", "More developed regions",
+                                  "Less developed regions",
+                                  "Least developed countries",
+                                  "Less developed regions, excluding least developed countries",
+                                  "Less developed regions, excluding China",
+                                  "High-income countries",
+                                  "Middle-income countries",
+                                  "Upper-middle-income countries",
+                                  "Lower-middle-income countries",
+                                  "Low-income countries",
+                                  "Sub-Saharan Africa",
+                                  "AFRICA",
+                                  "Eastern Africa",
+                                  "Middle Africa",
+                                  "Northern Africa",
+                                  "Western Sahara",
+                                  "Southern Africa",
+                                  "Western Africa",
+                                  "ASIA",
+                                  "Eastern Asia",
+                                  "South-Central Asia",
+                                  "Central Asia",
+                                  "Southern Asia",
+                                  "South-Eastern Asia",
+                                  "Western Asia",
+                                  "EUROPE",
+                                  "Eastern Europe",
+                                  "Northern Europe",
+                                  "Southern Europe",
+                                  "Western Europe",
+                                  "LATIN AMERICA AND THE CARIBBEAN",
+                                  "Caribbean",
+                                  "Central America",
+                                  "South America",
+                                  "NORTHERN AMERICA",
+                                  "OCEANIA",
+                                  "Australia/New Zealand",
+                                  "Melanesia",
+                                  "Micronesia",
+                                  "Polynesia"
+                                )))
 unique(births_1$country)
 
 # Changing some country names to match the WHO TB data and ISO codes #
@@ -379,7 +379,7 @@ length(unique(births_2022$country))
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)
 pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"),
-  sheet = "MEDIUM VARIANT", skip = 16
+                    sheet = "MEDIUM VARIANT", skip = 16
 ) # WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
 
 names(pop_f)
@@ -420,48 +420,48 @@ pop_f$pop_f <- pop_f$pop_f * 1000
 # pop_f3 <- rbind(pop_f1, pop_f2)
 
 pop_f1 <- pop_f %>% filter(!country %in%
-  c(
-    "WORLD", "More developed regions",
-    "Less developed regions",
-    "Least developed countries",
-    "Less developed regions, excluding least developed countries",
-    "Less developed regions, excluding China",
-    "High-income countries",
-    "Middle-income countries",
-    "Upper-middle-income countries",
-    "Lower-middle-income countries",
-    "Low-income countries",
-    "Sub-Saharan Africa",
-    "AFRICA",
-    "Eastern Africa",
-    "Middle Africa",
-    "Northern Africa",
-    "Western Sahara",
-    "Southern Africa",
-    "Western Africa",
-    "ASIA",
-    "Eastern Asia",
-    "South-Central Asia",
-    "Central Asia",
-    "Southern Asia",
-    "South-Eastern Asia",
-    "Western Asia",
-    "EUROPE",
-    "Eastern Europe",
-    "Northern Europe",
-    "Southern Europe",
-    "Western Europe",
-    "LATIN AMERICA AND THE CARIBBEAN",
-    "Caribbean",
-    "Central America",
-    "South America",
-    "NORTHERN AMERICA",
-    "OCEANIA",
-    "Australia/New Zealand",
-    "Melanesia",
-    "Micronesia",
-    "Polynesia"
-  ))
+                             c(
+                               "WORLD", "More developed regions",
+                               "Less developed regions",
+                               "Least developed countries",
+                               "Less developed regions, excluding least developed countries",
+                               "Less developed regions, excluding China",
+                               "High-income countries",
+                               "Middle-income countries",
+                               "Upper-middle-income countries",
+                               "Lower-middle-income countries",
+                               "Low-income countries",
+                               "Sub-Saharan Africa",
+                               "AFRICA",
+                               "Eastern Africa",
+                               "Middle Africa",
+                               "Northern Africa",
+                               "Western Sahara",
+                               "Southern Africa",
+                               "Western Africa",
+                               "ASIA",
+                               "Eastern Asia",
+                               "South-Central Asia",
+                               "Central Asia",
+                               "Southern Asia",
+                               "South-Eastern Asia",
+                               "Western Asia",
+                               "EUROPE",
+                               "Eastern Europe",
+                               "Northern Europe",
+                               "Southern Europe",
+                               "Western Europe",
+                               "LATIN AMERICA AND THE CARIBBEAN",
+                               "Caribbean",
+                               "Central America",
+                               "South America",
+                               "NORTHERN AMERICA",
+                               "OCEANIA",
+                               "Australia/New Zealand",
+                               "Melanesia",
+                               "Micronesia",
+                               "Polynesia"
+                             ))
 
 length(unique(pop_f1$country)) # 200
 
@@ -630,28 +630,19 @@ length(unique(hiv_data$country)) # 194
 
 hiv_data <- hiv_data %>%
   mutate(country = countrycode(country, origin = "country.name", destination = "country.name"),
-         iso3 = countrycode(iso3, origin = "iso3c", destination = "iso3c"))
+         iso3 = countrycode(iso3, origin = "iso3c", destination = "iso3c")) |> 
+  select(country, iso3, hiv, hiv_lo, hiv_hi) # just keep # needing ART
+
 
 # merge with births data
 names(hiv_data)
+# setdiff(hiv_data$country, num_births$country)
+# setdiff(num_births$country, hiv_data$country)
 num_births <- num_births %>%
-  left_join(hiv_data, by = c("country", "iso3", "g_whoregion"))
+  left_join(hiv_data, by = c("country", "iso3"))
 
-# naive splitting by age group
-vrz <- c("hiv", "hiv_prop", "art")
-
-tot_births <- num_births %>%
-  dplyr::ungroup() %>%
-  dplyr::group_by(country) %>%
-  dplyr::summarise(tot.births = sum(births_best, na.rm = TRUE))
-
-num_births <- num_births %>%
-  ungroup() %>%
-  left_join(tot_births, by = "country") 
-
-num_births <- num_births %>%
-  mutate_at(vars(contains(vrz)), ~(births_best/tot.births) *(.)) %>%
-  select(-tot.births)
+hiv_data |> 
+  filter(country=='Afghanistan')
 
 # combining the different datasets - 
 # births, population of females in the reproductive age and 
@@ -690,21 +681,80 @@ setdiff(unique(df_2$country), unique(new_df_births$country))
 # new_df_births$pregTBI_best_sd3 <- sqrt(((new_df_births$births_hi - new_df_births$births_lo)/sqrt(12))^2 + ((new_df_births$TBI_hi - new_df_births$TBI_lo)/sqrt(12))^2)
 
 ## use the 'width' -- there will be a common factor of 3.92 for all contributors:
+# Fill missing HIV values with region means for safety
+new_df_births <- new_df_births  |> 
+  dplyr::group_by(g_whoregion) |>
+  dplyr::mutate(across(matches('hiv'), ~ifelse(is.na(.), mean(., na.rm = TRUE), .))) |> # safety
+  ungroup()
+
+# Add uncertainty widths for births, HIV, and TBI
 new_df_births <- new_df_births |> 
-  mutate(
+  dplyr::mutate(
     birthsWidth = births_hi - births_lo,
     birthsWidthSq = birthsWidth^2,
+    HIVwidth = hiv_hi - hiv_lo,
+    HIVwidthSq = HIVwidth^2,
     TBIwidth = TBI_hi - TBI_lo,
     TBIwidthSq = TBIwidth^2
   )
 
+# Summarize total births and their uncertainty per country
+births_summary <- new_df_births %>%
+  dplyr::group_by(country) %>%
+  dplyr::summarise(
+    tot.births = sum(births_best, na.rm = TRUE),
+    totBirthsWidth = sqrt(sum(birthsWidthSq, na.rm = TRUE)) # SD propagation for births uncertainty
+  ) %>%
+  ungroup()
+
+# Now, calculate HIV rate and propagate uncertainty for each country
+new_df_births <- new_df_births %>%
+  left_join(births_summary, by = "country") %>% 
+  mutate(
+    # Best estimate HIV rate
+    hiv_best = hiv / tot.births, # no age specific
+    
+    # Propagate uncertainty for HIV rate
+    HIVwidth = hiv_best * sqrt(
+      (birthsWidth / births_best)^2 +          # uncertainty from birthsWidth
+        (totBirthsWidth / tot.births)^2 +       # uncertainty from total births
+        (HIVwidth / hiv)^2                      # uncertainty from HIV
+    )
+  )
+
+
+new_df_births |> filter(country=='Zimbabwe') |> select(matches('births|hiv'))
+
+new_df_births <- new_df_births  |> 
+  mutate(
+    birthsH1 = births_best * hiv_best,
+    birthsH1Width = birthsH1 * sqrt(
+      (birthsWidth / births_best)^2 + 
+        (HIVwidth / hiv_best)^2
+    ),
+    birthsH0 = births_best - birthsH1,
+    birthsH0Width = sqrt(
+      birthsWidth^2 + birthsH1Width^2
+    )
+  )
+
 ## calx
+names(new_df_births)
 new_df_births <- new_df_births |> 
   mutate(
-    py_preg = births_best * 280/365,
-    py_pp = births_best * 91.25/365,
-    pregTBI_best = births_best * 280/365 * (TBI_best/pop_f),
-    ppTBI_best = births_best * 91.25/365 * (TBI_best/pop_f)
+    PY.P = births_best * 280/365,
+    PY.PH0 = birthsH0 * 280/365,
+    PY.PH1 = birthsH1 * 280/365,
+    PY.PP = births_best * 91.25/365,
+    PY.PPH0 = birthsH0 * 91.25/365,
+    PY.PPH1 = birthsH1 * 91.25/365,
+    
+    TBI.P_best = births_best * 280/365 * (TBI_best/pop_f),
+    TBI.PH0_best = birthsH0 * 280/365 * (TBI_best/pop_f),
+    TBI.PH1_best = birthsH1 * 280/365 * (TBI_best/pop_f),
+    TBI.PP_best = births_best * 91.25/365 * (TBI_best/pop_f),
+    TBI.PPH0_best = birthsH0 * 91.25/365 * (TBI_best/pop_f),
+    TBI.PPH1_best = birthsH1 * 91.25/365 * (TBI_best/pop_f)
   )
 
 options(scipen=999)
@@ -715,9 +765,9 @@ options(scipen=999)
 
 # new_df_births <- new_df_births |> 
 #   mutate(
-#     py_preg_width = py_preg *
+#     PY.P_width = PY.P *
 #       sqrt((birthsWidth/births_best)^2),
-#     py_pp_width = py_pp *
+#     PY.PP_width = PY.PP *
 #       sqrt((birthsWidth/births_best)^2),
 #     pregTBIwidth = pregTBI_best *
 #       sqrt((TBIwidth/TBI_best)^2 + (birthsWidth/births_best)^2),
@@ -727,14 +777,26 @@ options(scipen=999)
 
 new_df_births <- new_df_births |> 
   mutate(
-    py_preg_width = 280/365 * birthsWidth,
-    py_pp_width = 91.25/365 * birthsWidth,
-    pregTBIwidth = pregTBI_best *
+    PY.Pwidth = 280/365 * birthsWidth,
+    PY.PH0width = 280/365 * birthsH0Width,
+    PY.PH1width = 280/365 * birthsH1Width,
+    PY.PPwidth = 91.25/365 * birthsWidth,
+    PY.PPH0width = 91.25/365 * birthsH0Width,
+    PY.PPH1width = 91.25/365 * birthsH1Width,
+    
+    TBI.Pwidth = TBI.P_best*
       sqrt((TBIwidth/TBI_best)^2 + (birthsWidth/births_best)^2),
-    ppTBIwidth = ppTBI_best *
-      sqrt((TBIwidth/TBI_best)^2 + (birthsWidth/births_best)^2)
+    TBI.PH0width = TBI.PH0_best *
+      sqrt((TBIwidth/TBI_best)^2 + (birthsH0Width/births_best)^2),
+    TBI.PH1width = TBI.PH1_best *
+      sqrt((TBIwidth/TBI_best)^2 + (birthsH1Width/births_best)^2),
+    TBI.PPwidth = TBI.PP_best *
+      sqrt((TBIwidth/TBI_best)^2 + (birthsWidth/births_best)^2),
+    TBI.PPH0width = TBI.PPH0_best *
+      sqrt((TBIwidth/TBI_best)^2 + (birthsH0Width/births_best)^2),
+    TBI.PPH1width = TBI.PPH1_best *
+      sqrt((TBIwidth/TBI_best)^2 + (birthsH1Width/births_best)^2)
   )
-
 
 ## TODO -- PJD
 ## then hi = best + width/2
@@ -747,25 +809,37 @@ new_df_births <- new_df_births |>
 # calc includes a workaround to remove negative values 
 new_df_births <- new_df_births |> 
   mutate(
-    pregTBI_lo = pregTBI_best - pregTBIwidth/2,
-    pregTBI_lo = ifelse(pregTBI_lo < 0, 0, pregTBI_lo),
-    pregTBI_hi = pregTBI_best + pregTBIwidth/2
-  )
-
-
-new_df_births <- new_df_births |> 
-  mutate(
-    ppTBI_lo = ppTBI_best - ppTBIwidth/2,
-    ppTBI_lo = ifelse(ppTBI_lo < 0, 0, ppTBI_lo),
-    ppTBI_hi = ppTBI_best + ppTBIwidth/2
+    TBI.P_lo = TBI.P_best - TBI.Pwidth/2,
+    TBI.P_lo = ifelse(TBI.P_lo < 0, 0, TBI.P_lo),
+    TBI.P_hi = TBI.P_best + TBI.Pwidth/2,
+    
+    TBI.PH0_lo = TBI.PH0_best - TBI.PH0width/2,
+    TBI.PH0_lo = ifelse(TBI.PH0_lo < 0, 0, TBI.PH0_lo),
+    TBI.PH0_hi = TBI.PH0_best + TBI.PH0width/2,
+    
+    TBI.PH1_lo = TBI.PH1_best - TBI.PH1width/2,
+    TBI.PH1_lo = ifelse(TBI.PH1_lo < 0, 0, TBI.PH1_lo),
+    TBI.PH1_hi = TBI.PH1_best + TBI.PH1width/2,
+    
+    TBI.PP_lo = TBI.PP_best - TBI.PPwidth/2,
+    TBI.PP_lo = ifelse(TBI.PP_lo < 0, 0, TBI.PP_lo),
+    TBI.PP_hi = TBI.PP_best + TBI.PPwidth/2,
+    
+    TBI.PPH0_lo = TBI.PPH0_best - TBI.PPH0width/2,
+    TBI.PPH0_lo = ifelse(TBI.PPH0_lo < 0, 0, TBI.PPH0_lo),
+    TBI.PPH0_hi = TBI.PPH0_best + TBI.PPH0width/2,
+    
+    TBI.PPH1_lo = TBI.PPH1_best - TBI.PPH1width/2,
+    TBI.PPH1_lo = ifelse(TBI.PPH1_lo < 0, 0, TBI.PPH1_lo),
+    TBI.PPH1_hi = TBI.PPH1_best + TBI.PPH1width/2
   )
 
 # new_df_births <- new_df_births %>%
 #   mutate(
-#     py_preg_lo = py_preg - (py_preg_width)/2,
-#     py_preg_hi = py_preg + (py_preg_width)/2,
-#     py_pp_lo = py_pp - (py_pp_width)/2,
-#     py_pp_hi = py_pp + (py_pp_width)/2
+#     PY.P_lo = PY.P - (PY.P_width)/2,
+#     PY.P_hi = PY.P + (PY.P_width)/2,
+#     PY.PP_lo = PY.PP - (PY.PP_width)/2,
+#     PY.PP_hi = PY.PP + (PY.PP_width)/2
 #   )
 # 
 # new_df_births |> 
@@ -776,46 +850,63 @@ new_df_births <- new_df_births |>
 # new_df_births |>
 #   ungroup() |>
 #   group_by(g_whoregion) |>
-#   dplyr::summarise(py_preg = mean(py_preg),
-#             py_pp = mean(py_pp))
+#   dplyr::summarise(PY.P = mean(PY.P),
+#             PY.PP = mean(PY.PP))
 ## then you
 ## PJD NOTE you didn't need na.rm=TRUE here...
 pregTB_cases <- new_df_births %>%
   group_by(country) %>%
-  summarise(pregTBI_best=sum(pregTBI_best,na.rm = TRUE),
-            pregTBI_W2 = sum((pregTBI_hi-pregTBI_lo)^2,na.rm=TRUE))
+  summarise(
+    TBI.P_best=sum(TBI.P_best,na.rm = TRUE),
+    TBI.P_W2 = sum((TBI.P_hi-TBI.P_lo)^2,na.rm=TRUE),
+    TBI.PH0_best=sum(TBI.PH0_best,na.rm = TRUE),
+    TBI.PH0_W2 = sum((TBI.PH0_hi-TBI.PH0_lo)^2,na.rm=TRUE),
+    TBI.PH1_best=sum(TBI.PH1_best,na.rm = TRUE),
+    TBI.PH1_W2 = sum((TBI.PH1_hi-TBI.PH1_lo)^2,na.rm=TRUE),
+    
+    TBI.PP_best=sum(TBI.PP_best,na.rm = TRUE),
+    TBI.PP_W2 = sum((TBI.PP_hi-TBI.PP_lo)^2,na.rm=TRUE),
+    TBI.PPH0_best=sum(TBI.PPH0_best,na.rm = TRUE),
+    TBI.PPH0_W2 = sum((TBI.PPH0_hi-TBI.PPH0_lo)^2,na.rm=TRUE),
+    TBI.PPH1_best=sum(TBI.PPH1_best,na.rm = TRUE),
+    TBI.PPH1_W2 = sum((TBI.PPH1_hi-TBI.PPH1_lo)^2,na.rm=TRUE)
+  ) 
 
+summary(pregTB_cases$TBI.PH1_W2)
 pregTB_cases <- pregTB_cases %>%
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBI_W2)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBI_W2)/2
-  )
-
-ppTB_cases <- new_df_births %>%
-  group_by(country) %>%
-  summarise(ppTBI_best=sum(ppTBI_best,na.rm=TRUE),
-            ppTBI_W2 = sum((pregTBI_hi-pregTBI_lo)^2,na.rm=TRUE))
-
-ppTB_cases <- ppTB_cases %>%
-  mutate(
-    ppTBI_lo = ppTBI_best - sqrt(ppTBI_W2)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBI_W2)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.P_W2)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.P_W2)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0_W2)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0_W2)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1_W2)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1_W2)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PP_W2)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PP_W2)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0_W2)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0_W2)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1_W2)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1_W2)/2
   )
 
 length(unique(new_df_births$country))
 
 ## Total population and births
-key_parms <- c("pop_f","births_best","birthsWidthSq")
+names(new_df_births)
+key_parms <- c("pop_f","births_best","birthsWidthSq", 'birthsH0', 'birthsH0WidthSq', 'birthsH1', 'birthsH1WidthSq')
 
 df <- new_df_births |> 
   mutate(
-    birthsWidthSq = birthsWidth^2
+    birthsWidthSq = birthsWidth^2,
+    birthsH0WidthSq = birthsH0Width^2,
+    birthsH1WidthSq = birthsH1Width^2
   )
 
 summary_regions_population <- df %>%
   dplyr::group_by(g_whoregion)%>%
   dplyr::summarise_at(key_parms, ~sum(., na.rm=T)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 ## add hi/lo
 summary_regions_population <- summary_regions_population |> 
@@ -823,75 +914,130 @@ summary_regions_population <- summary_regions_population |>
     pop_f1549 = pop_f,
     births_best = births_best,
     births_lo = births_best - sqrt(birthsWidthSq)/2,
-    births_hi = births_best + sqrt(birthsWidthSq)/2
+    births_hi = births_best + sqrt(birthsWidthSq)/2,
+    
+    birthsH0 = birthsH0,
+    birthsH0_lo = birthsH0 - sqrt(birthsH0WidthSq)/2,
+    birthsH0_hi = birthsH0 + sqrt(birthsH0WidthSq)/2,
+    
+    birthsH1 = birthsH1,
+    birthsH1_lo = birthsH1 - sqrt(birthsH1WidthSq)/2,
+    birthsH1_hi = birthsH1 + sqrt(birthsH1WidthSq)/2
   ) |> 
-  select(g_whoregion, pop_f1549, births_best, births_lo, births_hi) |> 
+  select(g_whoregion, pop_f1549, 
+         births_best, births_lo, births_hi, 
+         birthsH0, birthsH0_lo, birthsH0_hi,
+         birthsH1, birthsH1_lo, birthsH1_hi) |> 
   pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
   mutate(value = scales::comma(value))  |>
   pivot_wider(names_from = key, values_from = value)
 
+# looks okay: 
+# approximately 1.8 billion females aged 15-49 years in 2024
+# 132 million births worldwide in 2024
 summary_regions_population
 
 write.csv(summary_regions_population, here::here("TBburden/outdata", "summary_regions_population_2022.csv"), row.names = FALSE)
 
 ## person time
-key_parms <- c("py_preg","py_preg_widthSq",
-               "py_pp", "py_pp_widthSq")
+key_parms <- names(new_df_births)[grep("PY", names(new_df_births))]
+width_parms <- key_parms[grepl("width", key_parms)]
 
 new_df_births <- new_df_births |> 
-  mutate(
-    py_pp_widthSq = py_pp_width^2,
-    py_preg_widthSq = py_preg_width^2
-  )
+  dplyr::mutate(across(all_of(width_parms), ~ .^2, .names = "{col}Sq"))
+
+names(new_df_births)[grep("PY", names(new_df_births))]
+key_parms <- key_parms[!grepl("width", key_parms)]
+width_parms <- paste0(width_parms, "Sq")
+key_parms <- c(key_parms, width_parms)
 
 summary_regions_py <- new_df_births%>%
   dplyr::group_by(g_whoregion)%>%
   dplyr::summarise_at(key_parms, ~sum(., na.rm=T)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 # formatC(1e6, format = "d", big.mark = ",")
 
 ## add hi/lo
+names(summary_regions_py)
 summary_regions_py <- summary_regions_py |> 
-  mutate(
-    py_preg_lo = py_preg - sqrt(py_preg_widthSq)/2,
-    py_preg_hi = py_preg + sqrt(py_preg_widthSq)/2,
-    py_pp_lo = py_pp - sqrt(py_pp_widthSq)/2,
-    py_pp_hi = py_pp + sqrt(py_pp_widthSq)/2
+  dplyr::mutate(
+    PY.P_lo = PY.P - sqrt(PY.PwidthSq)/2,
+    PY.P_hi = PY.P + sqrt(PY.PwidthSq)/2,
+    PY.PH0_lo = PY.PH0 - sqrt(PY.PH0widthSq)/2,
+    PY.PH0_hi = PY.PH0 + sqrt(PY.PH0widthSq)/2,
+    PY.PH1_lo = PY.PH1 - sqrt(PY.PH1widthSq)/2,
+    PY.PH1_hi = PY.PH1 + sqrt(PY.PH1widthSq)/2,
+    
+    PY.PP_lo = PY.PP - sqrt(PY.PPwidthSq)/2,
+    PY.PP_hi = PY.PP + sqrt(PY.PPwidthSq)/2,
+    PY.PPH0_lo = PY.PPH0 - sqrt(PY.PPH0widthSq)/2,
+    PY.PPH0_hi = PY.PPH0 + sqrt(PY.PPH0widthSq)/2,
+    PY.PPH1_lo = PY.PPH1 - sqrt(PY.PPH1widthSq)/2,
+    PY.PPH1_hi = PY.PPH1 + sqrt(PY.PPH1widthSq)/2
   ) |> 
-  select(g_whoregion, py_preg, py_preg_lo, py_preg_hi, py_pp, py_pp_lo, py_pp_hi)  |> 
+  select(g_whoregion, 
+         PY.P, PY.P_lo, PY.P_hi,
+         PY.PH0, PY.PH0_lo, PY.PH0_hi, 
+         PY.PH1, PY.PH1_lo, PY.PH1_hi,
+         PY.PP, PY.PP_lo, PY.PP_hi,
+         PY.PPH0, PY.PPH0_lo, PY.PPH0_hi,
+         PY.PPH1, PY.PPH1_lo, PY.PPH1_hi
+  )  |> 
   pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
-  mutate(value = formatC(value, format = "d", big.mark = ",")) |> 
+  dplyr::mutate(value = formatC(value, format = "d", big.mark = ",")) |> 
   pivot_wider(names_from = key, values_from = value)
 
 summary_regions_py
 
 write.csv(summary_regions_py, here::here("TBburden/outdata", "summary_regions_py_2022.csv"), row.names = FALSE)
 
+# TODO: start here
+
 ## NOTE PJD changed as should be summing variances
-key_parms <- c("pregTBI_best","pregTBIwidthSq",
-               "ppTBI_best", "ppTBIwidthSq")
+key_parms <- new_df_births %>%  select(matches("TBI\\.")) %>%  names()
+best_parms <- key_parms[grepl("best", key_parms)]
+width_parms <- key_parms[grepl("width", key_parms)]
 
 new_df_births <- new_df_births |> 
   mutate(
-    ppTBIwidthSq = ppTBIwidth^2,
-    pregTBIwidthSq = pregTBIwidth^2
+    across(all_of(width_parms), ~ .^2, .names = "{col}Sq")
   )
+
+new_df_births %>%  select(matches("TBI\\.")) %>%  names()
+width_parms <- paste0(width_parms, "Sq")
+key_parms <- c(best_parms, width_parms)
 
 summary_regions <- new_df_births%>%
   dplyr::group_by(g_whoregion)%>%
   dplyr::summarise_at(key_parms, ~sum(., na.rm=T)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 ## add hi/lo
 summary_regions <- summary_regions |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(g_whoregion, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi) |> 
+  select(g_whoregion, 
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
   pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
   mutate(value = formatC(value, format = "d", big.mark = ",")) |> 
   pivot_wider(names_from = key, values_from = value)
@@ -903,23 +1049,44 @@ write.csv(summary_regions, here::here("TBburden/outdata", "summary_regions_2022.
 
 summary_regions_byagegroup <- new_df_births %>%
   group_by(g_whoregion, age_group) %>%
-  summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE))
+  summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE)) %>%
+  ungroup()
 
 ## add hi/lo
 summary_regions_byagegroup <- summary_regions_byagegroup |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(g_whoregion, age_group, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+  select(g_whoregion, age_group,
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -c(g_whoregion, age_group), names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 summary_regions_byagegroup
 
 write.csv(summary_regions_byagegroup, here::here("TBburden/outdata", "summary_regions_byagegroup_2022.csv"), row.names = FALSE)
 
 # The 30 TB high burden countries
+# TODO: check if this is an updated list
 hbc <- c(
   "Angola", "Bangladesh", "Brazil", "China",
   "Democratic People's Republic of Korea", "Democratic Republic of the Congo",
@@ -934,17 +1101,36 @@ summary_hbc <- new_df_births %>%
   filter(country %in% hbc) %>%
   group_by(country) %>%
   summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 ## add hi/lo
 summary_hbc <- summary_hbc |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(country, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+  select(country,
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 summary_hbc
 
@@ -953,43 +1139,101 @@ write.csv(summary_hbc, here::here("TBburden/outdata", "summary_hbc_2022.csv"), r
 
 # Adjusting estimates for pregnancy and postpartum TB risk
 # IRRs for pregnancy and postpartum TB
-tmp <- data.table::data.table(parm = c('preg', 'pp'), 
-                              lo = c(1.17, 1.53), 
-                              mid = c(1.34, 1.91), 
-                              hi = c(1.54, 2.39))
-tmp1 <- HEdtree::getLNparms(tmp[,mid],(tmp[,hi]-tmp[,lo])^2/3.92^2,med=FALSE)
+IRR <- data.table::fread(here::here('TBrisk/outdata/meta_summary.csv'))
+IRR
+
+tmp <- IRR
+# tmp <- data.table::data.table(parm = c('preg', 'pp'), 
+#                               lo = c(1.17, 1.53), 
+#                               mid = c(1.34, 1.91), 
+#                               hi = c(1.54, 2.39))
+tmp1 <- HEdtree::getLNparms(tmp[,m],(tmp[,hi]-tmp[,lo])^2/3.92^2,med=FALSE)
 
 # curve(dlnorm(x,tmp1$mu[1],tmp1$sig[1]),from=0,to=3)
 # curve(dlnorm(x,tmp1$mu[2],tmp1$sig[2]),from=0,to=3)
 tmp[,DISTRIBUTION:=paste0("LN(",tmp1$mu,",",tmp1$sig,")")] #LN distributions
 
 nreps = nrow(new_df_births)
-P <- HEdtree::parse.parmtable(data.frame(tmp[,.(NAME=parm, DISTRIBUTION)]))
+P <- HEdtree::parse.parmtable(data.frame(tmp[,.(NAME=period, DISTRIBUTION)]))
 PSA <- HEdtree::makePSA(nreps,P) # PSAE = PSA effects
 
+PSA |> 
+  pivot_longer(cols = everything(), names_to = "key", values_to = "value") |>
+  mutate(key = factor(key, 
+                      levels = c('P', 'PH0', 'PH1', 'PP', 'PPH0', 'PPH1'),
+                      labels = c('Pregnancy no HIV data',
+                                 'Pregnancy with HIV data',
+                                 'Pregnancy HIV data',
+                                 'Postpartum no HIV data',
+                                 'Postpartum with HIV data',
+                                 'Postpartum HIV data'))) |>
+  ggplot(aes(x = value, fill = key)) +
+  geom_histogram(bins = 50, alpha = 0.5, position = "identity") +
+  theme_minimal() +
+  facet_wrap(~key, scales = "free") +
+  theme(legend.position = "none")
+
 # names(new_df_births)[grepl('pregTBI_', names(new_df_births))]
-pregtb<- c('pregTBI_best', 'pregTBIwidthSq')
-pp <- c('ppTBI_best', 'ppTBIwidthSq')
+
+names(new_df_births)
+P <- names(new_df_births)[grepl('TBI.P', names(new_df_births))]
+PP <- P[grepl('.PP', P)]
+P <- P[!grepl('.PP', P)]
+
+PH0 <- P[grepl('PH0', P)]
+PH1 <- P[grepl('PH1', P)]
+P <- P[!grepl('PH0|PH1', P)]
+
+PPH0 <- PP[grepl('PH0', PP)]
+PPH1 <- PP[grepl('PH1', PP)]
+PP <- PP[!grepl('PH0|PH1', PP)]
+
+# merge in the IRRs
 new_df_births_adjusted <- cbind(new_df_births, PSA)
 
 new_df_births_adjusted <- new_df_births_adjusted %>%
-  mutate_at(vars(all_of(pregtb)), ~ . * preg) %>%
-  mutate_at(vars(all_of(pp)), ~ . * pp)
+  mutate(
+    across(all_of(P), ~ . * P),
+    across(all_of(PH0), ~ . * PH0),
+    across(all_of(PH1), ~ . * PH1),
+    across(all_of(PP), ~ . * PP),
+    across(all_of(PPH0), ~ . * PPH0),
+    across(all_of(PPH1), ~ . * PPH1)
+  )
 
 summary_regions_adjusted <- new_df_births_adjusted %>%
   dplyr::group_by(g_whoregion) %>%
   summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 ## add hi/lo
 summary_regions_adjusted <- summary_regions_adjusted |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(g_whoregion, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+  select(g_whoregion, 
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 write.csv(summary_regions_adjusted, here::here("TBburden/outdata", "summary_regions_adjusted.csv"), row.names = FALSE)
 
@@ -1000,12 +1244,31 @@ summary_regions_byagegroup_adjusted <- new_df_births_adjusted %>%
 ## add hi/lo
 summary_regions_byagegroup_adjusted <- summary_regions_byagegroup_adjusted |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(g_whoregion, age_group, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+  select(g_whoregion, age_group,
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -c(g_whoregion, age_group), names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 summary_regions_byagegroup_adjusted
 
@@ -1017,17 +1280,36 @@ summary_hbc_adjusted <- new_df_births %>%
   filter(country %in% hbc) %>%
   group_by(country) %>%
   summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 ## add hi/lo
 summary_hbc_adjusted <- summary_hbc_adjusted |> 
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
   ) |> 
-  select(country, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+  select(country,
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 summary_hbc_adjusted
 
@@ -1037,16 +1319,34 @@ write.csv(summary_hbc_adjusted, here::here("TBburden/outdata", "summary_hbc_adju
 summary_countries_adjusted <- new_df_births %>%
   group_by(country) %>%
   summarise_at(vars(all_of(key_parms)), ~ sum(.x, na.rm = TRUE)) %>%
-  adorn_totals("row")
+  janitor::adorn_totals("row")
 
 summary_countries_adjusted <- summary_countries_adjusted %>%
   mutate(
-    pregTBI_lo = pregTBI_best - sqrt(pregTBIwidthSq)/2,
-    pregTBI_hi = pregTBI_best + sqrt(pregTBIwidthSq)/2,
-    ppTBI_lo = ppTBI_best - sqrt(ppTBIwidthSq)/2,
-    ppTBI_hi = ppTBI_best + sqrt(ppTBIwidthSq)/2
-  ) %>%
-  select(country, pregTBI_best, pregTBI_lo, pregTBI_hi, ppTBI_best, ppTBI_lo, ppTBI_hi)
+    TBI.P_lo = TBI.P_best - sqrt(TBI.PwidthSq)/2,
+    TBI.P_hi = TBI.P_best + sqrt(TBI.PwidthSq)/2,
+    TBI.PH0_lo = TBI.PH0_best - sqrt(TBI.PH0widthSq)/2,
+    TBI.PH0_hi = TBI.PH0_best + sqrt(TBI.PH0widthSq)/2,
+    TBI.PH1_lo = TBI.PH1_best - sqrt(TBI.PH1widthSq)/2,
+    TBI.PH1_hi = TBI.PH1_best + sqrt(TBI.PH1widthSq)/2,
+    
+    TBI.PP_lo = TBI.PP_best - sqrt(TBI.PPwidthSq)/2,
+    TBI.PP_hi = TBI.PP_best + sqrt(TBI.PPwidthSq)/2,
+    TBI.PPH0_lo = TBI.PPH0_best - sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH0_hi = TBI.PPH0_best + sqrt(TBI.PPH0widthSq)/2,
+    TBI.PPH1_lo = TBI.PPH1_best - sqrt(TBI.PPH1widthSq)/2,
+    TBI.PPH1_hi = TBI.PPH1_best + sqrt(TBI.PPH1widthSq)/2
+  ) |> 
+  select(country,
+         TBI.P_best, TBI.P_lo, TBI.P_hi, 
+         TBI.PH0_best, TBI.PH0_lo, TBI.PH0_hi,
+         TBI.PH1_best, TBI.PH1_lo, TBI.PH1_hi,
+         TBI.PP_best, TBI.PP_lo, TBI.PP_hi,
+         TBI.PPH0_best, TBI.PPH0_lo, TBI.PPH0_hi,
+         TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
+  ) |> 
+  pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  mutate(value = formatC(value, format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
 
 write.csv(summary_countries_adjusted, here::here("TBburden/outdata", "summary_countries_22_adjusted.csv"), row.names = FALSE)
-
