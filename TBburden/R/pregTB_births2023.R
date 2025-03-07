@@ -108,6 +108,11 @@ if (!file.exists(here::here("TBburden/indata/df_dic.Rdata"))) {
   load(here::here("TBburden/indata/df_dic.Rdata"))
 }
 
+# source IRR for TB given HIV
+source(here::here("TBburden/R/TBrisk_hiv.R"))
+
+head(tb_hiv)
+
 # Filter females of reproductive age group
 df_ISO <- ISOS %>%
   select(country, iso3, g_whoregion)
@@ -621,8 +626,6 @@ hiv_data <- hiv_data |>
   ungroup() |>
   pivot_wider(names_from = Indicator, values_from = value)
 
-
-
 # 194 countries with 3 rows each
 hiv_data |>
   select(country) |>
@@ -765,6 +768,7 @@ new_df_births <- new_df_births |>
     TBI.PPH1_best = birthsH1 * 91.25 / 365 * (TBI_best / pop_f)
   )
 
+
 options(scipen = 999)
 ## A = B*C
 ## log(A) = log(B) + log(C)
@@ -804,6 +808,27 @@ new_df_births <- new_df_births |>
     TBI.PPH1width = TBI.PPH1_best *
       sqrt((TBIwidth / TBI_best)^2 + (birthsH1Width / births_best)^2)
   )
+
+# scale up TB in HIV by IRR hiv_data
+dim(new_df_births)
+dim(tb_hiv)
+new_df_births <- new_df_births |>
+  left_join(tb_hiv |> select(country, IRR, IRRWidth), by = c("country")) 
+
+new_df_births <- new_df_births |>
+  mutate(
+    TBI.PH1_best = TBI.PH1_best * IRR,
+    TBI.PH1width = TBI.PH1_best * sqrt(
+      (TBI.PH1width / TBI.PH1_best)^2 +
+        (IRRWidth / IRR)^2
+    ),
+    TBI.PPH1_best = TBI.PPH1_best * IRR,
+    TBI.PPH1width = TBI.PPH1_best * sqrt(
+      (TBI.PPH1width / TBI.PPH1_best)^2 +
+        (IRRWidth / IRR)^2
+    )
+  ) |> 
+  select(-IRR, -IRRWidth)
 
 ## TODO -- PJD
 ## then hi = best + width/2

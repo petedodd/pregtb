@@ -15,7 +15,7 @@ DR$pregYTBY <- round(DR$pregYTBY, 0)
 resFEP <- rma(
   yi = yi, # effect sizes: log(IRR)
   vi = vi, # variance
-  data = DR[include == "Yes" & HIV=='no'],
+  data = DR[include == "Yes" & HIV=='no' & Full_study=='Yes'],
   method = "FE" # Fixed-Effects model
 )
 
@@ -26,7 +26,7 @@ predict(resFEP, transf = exp, digits = 3)
 resREP <- rma(
   yi = yi,
   vi = vi,
-  data = DR[include == "Yes" & HIV=='no'],
+  data = DR[include == "Yes" & HIV=='no' & Full_study=='Yes'],
   slab = paste(FA, country, year, sep = ", ")
 )
 
@@ -37,7 +37,7 @@ predict(resREP, transf = exp, digits = 3)
 resREPH <- rma(
   yi = yi,
   vi = vi,
-  data = DR[include == "Yes" & Full_study=='Yes'],
+  data = DR[include == "Yes" & Full_study=='No' & HIV=='yes'],
   slab = paste(FA, country, year, sep = ", ")
 )
 
@@ -49,7 +49,7 @@ predict(resREPH, transf = exp, digits = 3)
 resFEPP <- rma(
   yi = yi, # effect sizes: log(IRR)
   vi = vi, # variance
-  data = DRPP[include == "Yes"],
+  data = DRPP[include == "Yes"& HIV=='no' & Full_study=='Yes'],
   method = "FE" # Fixed-Effects model
 )
 
@@ -60,7 +60,7 @@ predict(resFEPP, transf = exp, digits = 3)
 resREPP <- rma(
   yi = yi,
   vi = vi,
-  data = DRPP[include == "Yes" & HIV=='no'],
+  data = DRPP[include == "Yes"& HIV=='no' & Full_study=='Yes'],
   slab = paste(FA, country, year, sep = ", ")
 )
 
@@ -71,7 +71,7 @@ predict(resREPP, transf = exp, digits = 3)
 resREPPH <- rma(
   yi = yi,
   vi = vi,
-  data = DRPP[include == "Yes" & Full_study=='Yes'],
+  data = DRPP[include == "Yes" & Full_study=='No' & HIV=='yes'],
   slab = paste(FA, country, year, sep = ", ")
 )
 
@@ -85,19 +85,21 @@ pregH <- predict(resREPH,transf = exp)
 ppH <- predict(resREPPH,transf = exp)
 
 DD1 <- DR |> 
-  filter(include == "Yes" & HIV=='no') |> 
+  filter(include == "Yes" & HIV=='no' & Full_study=="Yes") |> 
   select(FA, country, HIV, year, Sample, pregYTBY, pregNTBY,  pregYTBN,  pregNTBN, `Incidence Risk Ratio`=m, mlo, mhi, yi, SE=si, vi) |> 
   mutate(clinical = "Pregnancy")
 DD1h <- DR |> 
-  filter(include == "Yes" & Full_study=='Yes') |> 
+  filter(include == "Yes" & HIV=='yes' & Full_study=='No') |> 
+  mutate(FA = gsub("\\d", "", FA)) |>
   select(FA, country, HIV, year, Sample, pregYTBY, pregNTBY,  pregYTBN,  pregNTBN, `Incidence Risk Ratio`=m, mlo, mhi, yi, SE=si, vi) |> 
   mutate(clinical = "PregnancyHIV")
 DD2 <- DRPP |> 
-  filter(include == "Yes" & HIV=='no') |> 
+  filter(include == "Yes" & HIV=='no' & Full_study=="Yes") |> 
   select(FA, country, HIV, year, Sample, pregYTBY=ppYTBY, pregNTBY=ppNTBY,  pregYTBN=ppYTBN,  pregNTBN=ppNTBN, `Incidence Risk Ratio`=m, mlo, mhi, yi, SE=si, vi) |> 
   mutate(clinical = "Postpartum")
 DD2h <- DRPP |>
-  filter(include == "Yes" & Full_study=='Yes') |> 
+  filter(include == "Yes" & HIV=='yes' & Full_study=='No') |> 
+  mutate(FA = gsub("\\d", "", FA)) |>
   select(FA, country, HIV, year, Sample, pregYTBY=ppYTBY, pregNTBY=ppNTBY,  pregYTBN=ppYTBN,  pregNTBN=ppNTBN, `Incidence Risk Ratio`=m, mlo, mhi, yi, SE=si, vi) |> 
   mutate(clinical = "PostpartumHIV")
 
@@ -147,16 +149,16 @@ B <- rbind(
 (lbz <- unique(as.character(B$lab)))
 lbz2 <- lbz
 B[,lab:=factor(lab,levels=lbz2,ordered = TRUE)]
-B[,clinical.g:='Pregnancy no HIV data']
-B[clinical=='Postpartum',clinical.g:='Postpartum no HIV data']
-B[clinical=='PregnancyHIV',clinical.g:='Pregnancy with HIV data']
-B[clinical=='PostpartumHIV',clinical.g:='Postpartum with HIV data']
+B[,clinical.g:='Pregnancy no HIV']
+B[clinical=='Postpartum',clinical.g:='Postpartum no HIV']
+B[clinical=='PregnancyHIV',clinical.g:='Pregnancy HIV']
+B[clinical=='PostpartumHIV',clinical.g:='Postpartum HIV']
 
 (lbz <- unique(as.character(B$clinical.g)))
-lbz <- c('Pregnancy no HIV data',
-         'Pregnancy with HIV data',
-         'Postpartum no HIV data',
-         'Postpartum with HIV data')
+lbz <- c('Pregnancy no HIV',
+         'Pregnancy HIV',
+         'Postpartum no HIV',
+         'Postpartum HIV')
 B[,clinical.g:=factor(clinical.g,levels=lbz)]
 labdat <- B[1]
 labdat[,txt:=' Weight (%)']
@@ -165,8 +167,11 @@ labdat2[,txt:='IRR (95% confidence interval)']
 
 B$lab <- forcats::fct_rev(factor(B$lab))
 
+B1 <- B |> 
+  filter(!(qty == 'summary' & grepl('HIV', clinical)))
+
 #' Create publication forest plot figure:
-SA <- ggplot(B,aes(lab,y=`Incidence Risk Ratio`,
+SA <- ggplot(B1,aes(lab,y=`Incidence Risk Ratio`,
                    ymin=mlo,
                    ymax=mhi,
                    col=qty)) +
@@ -203,14 +208,14 @@ SA <- ggplot(B,aes(lab,y=`Incidence Risk Ratio`,
   ) +
   geom_text(aes(x = lab, y = 15, label = CI, hjust = 'right')) +
   geom_text(aes(x = lab, y = -0.8, label = wt)) +
-  geom_text(data = labdat, aes(x = 5.5, y = -0.5, label = txt), size = 4) +
-  geom_text(data = labdat2, aes(x = 5.5, y = 13, label = txt), size = 4) +
+  geom_text(data = labdat, aes(x = 4.5, y = -0.5, label = txt), size = 4) +
+  geom_text(data = labdat2, aes(x = 4.5, y = 13, label = txt), size = 4) +
   ggpubr::grids()
 
 SA
 ggsave(SA,file=here::here('TBrisk/plots/ForestPlot.pdf'),h=13,w=12)
 ggsave(SA,file=here::here('TBrisk/plots/ForestPlot.eps'),h=13,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlot.png'),h=10,w=10)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlot.png'),h=11,w=10)
 
 
 m0 <- B |> 
