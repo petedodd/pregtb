@@ -130,8 +130,8 @@ length(unique(df_ISO$country))
 
 df <- df %>%
   mutate(country = countrycode(country,
-    origin = "country.name",
-    destination = "country.name"
+                               origin = "country.name",
+                               destination = "country.name"
   ))
 
 
@@ -188,13 +188,13 @@ length(unique(df_2$country)) # now 215, used to be 216
 
 # Using 2020-2025 projections from WPP2019 data
 WPP2019_BAGEM <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "MEDIUM VARIANT", skip = 16
+                            sheet = "MEDIUM VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
 WPP2019_BAGEL <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "LOW VARIANT", skip = 16
+                            sheet = "LOW VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
 WPP2019_BAGEH <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-  sheet = "HIGH VARIANT", skip = 16
+                            sheet = "HIGH VARIANT", skip = 16
 ) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
 
 names(WPP2019_BAGEM)
@@ -266,48 +266,48 @@ births <- births %>% dplyr::rename(births_lo = `Low variant`, births_hi = `High 
 births <- births |>
   filter(!`Country code` > 900)
 births_1 <- births %>% filter(!tolower(country) %in%
-  tolower(c(
-    "WORLD", "More developed regions",
-    "Less developed regions",
-    "Least developed countries",
-    "Less developed regions, excluding least developed countries",
-    "Less developed regions, excluding China",
-    "High-income countries",
-    "Middle-income countries",
-    "Upper-middle-income countries",
-    "Lower-middle-income countries",
-    "Low-income countries",
-    "Sub-Saharan Africa",
-    "AFRICA",
-    "Eastern Africa",
-    "Middle Africa",
-    "Northern Africa",
-    "Western Sahara",
-    "Southern Africa",
-    "Western Africa",
-    "ASIA",
-    "Eastern Asia",
-    "South-Central Asia",
-    "Central Asia",
-    "Southern Asia",
-    "South-Eastern Asia",
-    "Western Asia",
-    "EUROPE",
-    "Eastern Europe",
-    "Northern Europe",
-    "Southern Europe",
-    "Western Europe",
-    "LATIN AMERICA AND THE CARIBBEAN",
-    "Caribbean",
-    "Central America",
-    "South America",
-    "NORTHERN AMERICA",
-    "OCEANIA",
-    "Australia/New Zealand",
-    "Melanesia",
-    "Micronesia",
-    "Polynesia"
-  )))
+                                tolower(c(
+                                  "WORLD", "More developed regions",
+                                  "Less developed regions",
+                                  "Least developed countries",
+                                  "Less developed regions, excluding least developed countries",
+                                  "Less developed regions, excluding China",
+                                  "High-income countries",
+                                  "Middle-income countries",
+                                  "Upper-middle-income countries",
+                                  "Lower-middle-income countries",
+                                  "Low-income countries",
+                                  "Sub-Saharan Africa",
+                                  "AFRICA",
+                                  "Eastern Africa",
+                                  "Middle Africa",
+                                  "Northern Africa",
+                                  "Western Sahara",
+                                  "Southern Africa",
+                                  "Western Africa",
+                                  "ASIA",
+                                  "Eastern Asia",
+                                  "South-Central Asia",
+                                  "Central Asia",
+                                  "Southern Asia",
+                                  "South-Eastern Asia",
+                                  "Western Asia",
+                                  "EUROPE",
+                                  "Eastern Europe",
+                                  "Northern Europe",
+                                  "Southern Europe",
+                                  "Western Europe",
+                                  "LATIN AMERICA AND THE CARIBBEAN",
+                                  "Caribbean",
+                                  "Central America",
+                                  "South America",
+                                  "NORTHERN AMERICA",
+                                  "OCEANIA",
+                                  "Australia/New Zealand",
+                                  "Melanesia",
+                                  "Micronesia",
+                                  "Polynesia"
+                                )))
 unique(births_1$country)
 
 # Changing some country names to match the WHO TB data and ISO codes #
@@ -379,7 +379,7 @@ length(unique(births_2022$country))
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)
 pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"),
-  sheet = "MEDIUM VARIANT", skip = 16
+                    sheet = "MEDIUM VARIANT", skip = 16
 ) # WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
 
 names(pop_f)
@@ -420,48 +420,48 @@ pop_f$pop_f <- pop_f$pop_f * 1000
 # pop_f3 <- rbind(pop_f1, pop_f2)
 
 pop_f1 <- pop_f %>% filter(!country %in%
-  c(
-    "WORLD", "More developed regions",
-    "Less developed regions",
-    "Least developed countries",
-    "Less developed regions, excluding least developed countries",
-    "Less developed regions, excluding China",
-    "High-income countries",
-    "Middle-income countries",
-    "Upper-middle-income countries",
-    "Lower-middle-income countries",
-    "Low-income countries",
-    "Sub-Saharan Africa",
-    "AFRICA",
-    "Eastern Africa",
-    "Middle Africa",
-    "Northern Africa",
-    "Western Sahara",
-    "Southern Africa",
-    "Western Africa",
-    "ASIA",
-    "Eastern Asia",
-    "South-Central Asia",
-    "Central Asia",
-    "Southern Asia",
-    "South-Eastern Asia",
-    "Western Asia",
-    "EUROPE",
-    "Eastern Europe",
-    "Northern Europe",
-    "Southern Europe",
-    "Western Europe",
-    "LATIN AMERICA AND THE CARIBBEAN",
-    "Caribbean",
-    "Central America",
-    "South America",
-    "NORTHERN AMERICA",
-    "OCEANIA",
-    "Australia/New Zealand",
-    "Melanesia",
-    "Micronesia",
-    "Polynesia"
-  ))
+                             c(
+                               "WORLD", "More developed regions",
+                               "Less developed regions",
+                               "Least developed countries",
+                               "Less developed regions, excluding least developed countries",
+                               "Less developed regions, excluding China",
+                               "High-income countries",
+                               "Middle-income countries",
+                               "Upper-middle-income countries",
+                               "Lower-middle-income countries",
+                               "Low-income countries",
+                               "Sub-Saharan Africa",
+                               "AFRICA",
+                               "Eastern Africa",
+                               "Middle Africa",
+                               "Northern Africa",
+                               "Western Sahara",
+                               "Southern Africa",
+                               "Western Africa",
+                               "ASIA",
+                               "Eastern Asia",
+                               "South-Central Asia",
+                               "Central Asia",
+                               "Southern Asia",
+                               "South-Eastern Asia",
+                               "Western Asia",
+                               "EUROPE",
+                               "Eastern Europe",
+                               "Northern Europe",
+                               "Southern Europe",
+                               "Western Europe",
+                               "LATIN AMERICA AND THE CARIBBEAN",
+                               "Caribbean",
+                               "Central America",
+                               "South America",
+                               "NORTHERN AMERICA",
+                               "OCEANIA",
+                               "Australia/New Zealand",
+                               "Melanesia",
+                               "Micronesia",
+                               "Polynesia"
+                             ))
 
 length(unique(pop_f1$country)) # 200
 
@@ -720,7 +720,7 @@ new_df_births <- new_df_births %>%
   mutate(
     # Best estimate HIV rate
     hiv_best = hiv / tot.births, # no age specific
-
+    
     # Propagate uncertainty for HIV rate
     HIVwidth = hiv_best * sqrt(
       (birthsWidth / births_best)^2 + # uncertainty from birthsWidth
@@ -1164,15 +1164,15 @@ PSA <- HEdtree::makePSA(nreps, P) # PSAE = PSA effects
 PSA |>
   pivot_longer(cols = everything(), names_to = "key", values_to = "value") |>
   mutate(key = factor(key,
-    levels = c("P", "PH0", "PH1", "PP", "PPH0", "PPH1"),
-    labels = c(
-      "Pregnancy no HIV data",
-      "Pregnancy with HIV data",
-      "Pregnancy HIV data",
-      "Postpartum no HIV data",
-      "Postpartum with HIV data",
-      "Postpartum HIV data"
-    )
+                      levels = c("P", "PH0", "PH1", "PP", "PPH0", "PPH1"),
+                      labels = c(
+                        "Pregnancy no HIV data",
+                        "Pregnancy with HIV data",
+                        "Pregnancy HIV data",
+                        "Postpartum no HIV data",
+                        "Postpartum with HIV data",
+                        "Postpartum HIV data"
+                      )
   )) |>
   ggplot(aes(x = value, fill = key)) +
   geom_histogram(bins = 50, alpha = 0.5, position = "identity") +
