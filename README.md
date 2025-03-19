@@ -83,6 +83,6 @@ This is the main analysis script that pulls together the pre-processedinput data
 
 This is an old main analysis script that estimates TB burden during pregnancy & postpartum. `To be deleted`.
 
-### TBrisk
+### Old files
 
 This folder contains old analysis scripts for estimating TB risk during pregnancy & postpartum.`To be deleted/untracked`.
