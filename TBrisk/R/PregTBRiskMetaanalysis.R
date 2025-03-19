@@ -244,5 +244,9 @@ m2
 meta_summary <- rbind(m0, m1, m2) 
 meta_summary
 
+## create directory if missing and save out
+fn <- here::here('TBrisk/outdata')
+if(!file.exists(fn)) dir.create(fn)
+
 meta_summary |> fwrite(here::here('TBrisk/outdata/meta_summary.csv'))
 
