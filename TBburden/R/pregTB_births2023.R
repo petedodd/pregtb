@@ -133,7 +133,7 @@ length(unique(df_ISO$country))
 #                  merging_info = FALSE)
 # z2 |> filter(is.na(iso3))
 
-df <- df %>%
+df <- df_age_sex %>%
   mutate(country = countrycode(country,
                                origin = "country.name",
                                destination = "country.name"
@@ -181,32 +181,34 @@ length(unique(df_2$country)) # now 215, used to be 216
 
 # TODO: to check this new data ->> how to include uncertainty
 # BD <- data.table::fread('~/Downloads/WPP2024_Fertility_by_Age5.csv.gz')
+# BD <- data.table::fread("C:/Users/cm1nm/Downloads/WPP2024_Fertility_by_Age5.csv.gz")
 # print(object.size(BD),units='auto')
 # # table(BD$Time)
 # table(BD$Variant)
-# # BD <- BD[Time==2022]
+BD <- BD[Time==analysis_year]
 # BD[,unique(ISO3_code)]
 # BD <- BD[ISO3_code!=""] # these do not include uncertainty
-# BDM <- BD[Variant=="Medium" & Time==2024]
-# BDL <- BD[Variant=="Low" & Time==2024]
+# BDM <- BD[Variant=="Medium"]
+# BDL <- BD[Variant=="Low"]
 # BDH <- BD[Variant=="High" & Time==2024]
 
-# Using 2020-2025 projections from WPP2019 data
-WPP2019_BAGEM <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-                            sheet = "MEDIUM VARIANT", skip = 16
-) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
-WPP2019_BAGEL <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-                            sheet = "LOW VARIANT", skip = 16
-) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
-WPP2019_BAGEH <- read_excel(here::here("TBburden/indata/WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER.xlsx"),
-                            sheet = "HIGH VARIANT", skip = 16
-) # WPP2019_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
+# Using 2020-2025 projections from WPP data
+path <- here::here("TBburden/indata/WPP2024_FERT_F04_BIRTHS_BY_5-YEAR_AGE_GROUPS_OF_MOTHER.xlsx")
+WPP_BAGEM <- read_excel(path,
+                            sheet = "Medium variant", skip = 16
+) # WPP_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER MEDIUM VARIANT
+WPP_BAGEL <- read_excel(path,
+                            sheet = "Low variant", skip = 16
+) # WPP_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER LOW VARIANT
+WPP_BAGEH <- read_excel(path,
+                            sheet = "High variant", skip = 16
+) # WPP_FERT_F06_BIRTHS_BY_AGE_OF_MOTHER HIGH VARIANT
 
-names(WPP2019_BAGEM)
-WPP2019_BAGEL
-WPP2019_BAGEH
+names(WPP_BAGEM)
+WPP_BAGEL
+WPP_BAGEH
 
-births <- rbind(WPP2019_BAGEM, WPP2019_BAGEL, WPP2019_BAGEH)
+births <- rbind(WPP_BAGEM, WPP_BAGEL, WPP_BAGEH)
 
 for (k in 1:length(names(births))) { # convert all the rows with type 'integer' to 'numeric
   if (is.integer(births[, k])) {
@@ -216,21 +218,21 @@ for (k in 1:length(names(births))) { # convert all the rows with type 'integer' 
 
 names(births)[3] <- "country"
 births |>
-  filter(`Country code` > 900) |>
+  filter(`Location code` > 900) |>
   select(country) |>
   distinct()
 
 
 #
 births <- births |>
-  pivot_longer(cols = -c(1:8), names_to = "age", values_to = "value") |>
+  pivot_longer(cols = -c(1:11), names_to = "age", values_to = "value") |>
   mutate(value = as.numeric(value)) |>
   pivot_wider(names_from = age, values_from = value)
 
 
 # recategorizing age groups to match the WHO TB data
 table(df_2$age_group)
-
+names(births)[-c(1:11)]
 # births$`15plus` <- rowSums(births[7:13], na.rm = TRUE)
 births$"15-24" <- rowSums(births[c("15-19", "20-24")], na.rm = TRUE)
 births$"25-34" <- rowSums(births[c("25-29", "30-34")], na.rm = TRUE)
@@ -241,35 +243,43 @@ names(births)[3] <- "country"
 
 births
 births |>
-  filter(country == "United Kingdom" & Period == "2020-2025")
+  filter(country == "United Kingdom" & Year == 2024) |> 
+  select(-c(1:11,"15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49"))
 
 births <- births %>%
   select(-c("15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49")) %>%
-  pivot_longer(cols = -c(Index:Period), names_to = "age_group", values_to = "estimate")
+  pivot_longer(cols = -c(Index:Year), names_to = "age_group", values_to = "estimate")
 
-births <- separate(births, Period, c("from", "to"))
-births$to <- as.numeric(births$to) - 1
-births$year <- mapply(seq, births$from, births$to, SIMPLIFY = FALSE)
-births$estimate <- (births$estimate * 1000) / 5 # convert to thousands
+# births <- separate(births, Year, c("from", "to"))
+# births$to <- as.numeric(births$to) - 1
+# births$year <- mapply(seq, births$from, births$to, SIMPLIFY = FALSE)
+# births$estimate <- (births$estimate * 1000) / 5 # convert to thousands
+
+births$estimate <- (births$estimate * 1000) # convert to thousands
+
+births |> 
+  filter(country=='World' & Variant=='Medium' & Year == 2024) |>
+  summarise(sum(estimate, na.rm = T))
 
 # check
 births |>
-  filter(country == "United Kingdom" & year == "2020:2024" & Variant == "Medium variant") |>
+  filter(country == "United Kingdom" & Variant=='Medium' & Year == 2024) |>
   summarise(sum(estimate, na.rm = T))
 
 births <- births %>%
-  unnest(year) %>%
-  select(-from, -to) %>%
+  # unnest(year) %>%
+  # select(-from, -to) %>%
   spread(Variant, estimate)
 
 births |>
-  filter(country == "United Kingdom" & year == "2020") |>
-  summarise(sum(`Medium variant`, na.rm = T))
+  filter(country == "United Kingdom" & Year == 2024) |>
+  summarise(sum(Medium, na.rm = T))
 
-births <- births %>% dplyr::rename(births_lo = `Low variant`, births_hi = `High variant`, births_best = `Medium variant`)
+# births <- births %>% dplyr::rename(births_lo = `Low variant`, births_hi = `High variant`, births_best = `Medium variant`)
+births <- births %>% dplyr::rename(births_lo = Low, births_hi = High, births_best = Medium)
 
 births <- births |>
-  filter(!`Country code` > 900)
+  filter(!`Location code` > 900)
 births_1 <- births %>% filter(!tolower(country) %in%
                                 tolower(c(
                                   "WORLD", "More developed regions",
@@ -356,9 +366,9 @@ setdiff(df_2$country, births_1$country)
 
 
 births_2 <- births_1 %>%
-  select(-c("Notes", `Country code`)) %>%
+  select(-c(Notes, `Location code`)) %>%
   left_join(df_ISO, by = "country")
-# births2<- births %>% select(-c("Notes")) %>% left_join(code, by = "country", `Country code`)%>% filter(!is.na(iso3))
+# births2<- births %>% select(-c("Notes")) %>% left_join(code, by = "country", `Location code`)%>% filter(!is.na(iso3))
 length(unique(births_2$country)) # 200
 # births_2 <- births_1 %>% filter(age_group %in% c("15-24", "25-34", "35-44", "45-54")) %>% filter(country %in% df_1$country)
 # length(unique(births$country))
@@ -376,35 +386,118 @@ length(unique(births_2$country)) # 200
 #                                                                              ifelse(country=="French Guiana", "GUF",
 #                                                                                     iso3))))))))
 # filter 2022 data to match the WHO TB data
+max(births_2$Year)
 births_2022 <- births_2 %>%
-  filter(year == 2022) %>%
+  filter(Year == Year[which.min(abs(Year - analysis_year))]) %>%
   select(country, iso3, g_whoregion, age_group, births_best, births_lo, births_hi)
 length(unique(births_2022$country))
 
 # read in population of females in the reproductive age group
 # Annual female population by five-year age group, region, subregion and country, 1950-2100 (thousands)
-pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"),
-                    sheet = "MEDIUM VARIANT", skip = 16
-) # WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
+# pop_f <- read_excel(here::here("TBburden/indata/WPP2019_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE.xlsx"),
+#                     sheet = "MEDIUM VARIANT", skip = 16
+# ) # WPP_POP_F15_3_ANNUAL_POPULATION_BY_AGE_FEMALE MEDIUM VARIANT
+# 
+# names(pop_f)
+# unique(pop_f$Variant)
+# pop_f <- pop_f %>%
+#   dplyr::rename(pop_f = Variant, country = `Region, subregion, country or area *`, year = `Reference date (as of 1 July)`)
+# 
+# pop_f |>
+#   filter(`Country code` > 900) |>
+#   select(country) |>
+#   distinct() |>
+#   pull()
+path <- here::here("TBburden/indata/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx")
+WPP_FM <- read_excel(path,
+                     sheet = "Medium variant", skip = 16
+) 
+WPP_FL <- read_excel(path,
+                     sheet = "Low variant", skip = 16
+) 
+WPP_FH <- read_excel(path,
+                     sheet = "High variant", skip = 16
+) 
 
+names(WPP_FM)
 names(pop_f)
-pop_f <- pop_f %>%
-  dplyr::rename(pop_f = Variant, country = `Region, subregion, country or area *`, year = `Reference date (as of 1 July)`)
 
+setdiff(names(WPP_FM), names(pop_f))
+setdiff(names(pop_f), names(WPP_FM))
+
+
+pop_f <- rbind(WPP_FM, WPP_FL, WPP_FH)
+pop_f <- pop_f |> 
+  rename(`Country code` = "Location code", year = Year)
+
+for (k in 1:length(names(pop_f))) { # convert all the rows with type 'integer' to 'numeric
+  if (is.integer(pop_f[, k])) {
+    pop_f[, k] <- as.numeric(pop_f[, k])
+  }
+}
+
+names(pop_f)[3] <- "country"
 pop_f |>
   filter(`Country code` > 900) |>
   select(country) |>
-  distinct() |>
-  pull()
+  distinct()
+
+
+#
+pop_f <- pop_f |>
+  pivot_longer(cols = -c(1:11), names_to = "age", values_to = "value") |>
+  mutate(value = as.numeric(value)) |>
+  pivot_wider(names_from = age, values_from = value)
+
+
+# recategorizing age groups to match the WHO TB data
+table(df_2$age_group)
+names(pop_f)[-c(1:11)]
+# pop_f$`15plus` <- rowSums(pop_f[7:13], na.rm = TRUE)
+pop_f$"15-24" <- rowSums(pop_f[c("15-19", "20-24")], na.rm = TRUE)
+pop_f$"25-34" <- rowSums(pop_f[c("25-29", "30-34")], na.rm = TRUE)
+pop_f$"35-44" <- rowSums(pop_f[c("35-39", "40-44")], na.rm = TRUE)
+pop_f$"45-54" <- pop_f$`45-49`
+
+
+pop_f
+pop_f |>
+  filter(country == "United Kingdom" & year == 2024) |> 
+  select(-c(1:11,"15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49"))
+
+ages <- unique(df_2$age_group)
+pop_f <- pop_f %>%
+  select(Index:year, all_of(ages)) %>%
+  pivot_longer(cols = -c(Index:year), names_to = "age_group", values_to = "estimate")
+
+# pop_f <- separate(pop_f, Year, c("from", "to"))
+# pop_f$to <- as.numeric(pop_f$to) - 1
+# pop_f$year <- mapply(seq, pop_f$from, pop_f$to, SIMPLIFY = FALSE)
+# pop_f$estimate <- (pop_f$estimate * 1000) / 5 # convert to thousands
+
+pop_f$estimate <- (pop_f$estimate * 1000) # convert to thousands
+
+pop_f |> 
+  filter(country=='World' & Variant=='Medium' & year == 2024) |>
+  summarise(sum(estimate, na.rm = T))
+
+# check
+pop_f |>
+  filter(country == "United Kingdom" & Variant=='Medium' & year == 2024) |>
+  summarise(sum(estimate, na.rm = T))
+
+pop_f <- pop_f %>%
+  # unnest(year) %>%
+  # select(-from, -to) %>%
+  spread(Variant, estimate)
+
+
+# pop_f <- pop_f %>% dplyr::rename(pop_f_lo = `Low variant`, pop_f_hi = `High variant`, pop_f_best = `Medium variant`)
+pop_f <- pop_f %>% dplyr::rename(pop_f_lo = Low, pop_f_hi = High, pop_f_best = Medium)
 
 pop_f <- pop_f |>
   filter(!`Country code` > 900)
 
-#
-pop_f <- pop_f |>
-  pivot_longer(cols = -c(Index:year), names_to = "age", values_to = "value") |>
-  mutate(value = as.numeric(value)) |>
-  pivot_wider(names_from = age, values_from = value)
 
 # pop_f$`15plus` <- rowSums(pop_f[10:27], na.rm = TRUE)
 pop_f$"15-24" <- rowSums(pop_f[c("15-19", "20-24")], na.rm = TRUE)
@@ -414,9 +507,9 @@ pop_f$"45-54" <- rowSums(pop_f[c("45-49", "50-54")], na.rm = TRUE)
 
 names(pop_f)
 pop_f <- pop_f %>%
-  select(c("country", "pop_f", "year", "15-24", "25-34", "35-44", "45-54")) %>%
-  gather(age_group, pop_f, c("15-24", "25-34", "35-44", "45-54"))
-pop_f$pop_f <- pop_f$pop_f * 1000
+  select(c("country", starts_with("pop_f"), year)) %>%
+  pivot_longer(cols = -c(country, year), names_to = "age_group", values_to = "estimate")
+
 
 # pop_f1 <- pop_f %>% filter(age_group %in% c("15-24", "25-34", "35-44", "45-54")) #%>% filter(country %in% df_1$country)
 # pop_f2 <- pop_f %>% filter(country %in% df_2$country) %>% filter(age_group=="15plus")
@@ -505,7 +598,7 @@ pop_f1 <- pop_f1 %>%
 
 pop_f2 <- pop_f1 %>%
   left_join(df_ISO, by = "country") %>%
-  select(country, iso3, age_group, year, pop_f)
+  select(country, iso3, age_group, year, starts_with("pop_f"))
 length(unique(pop_f2$country)) # 200
 
 # missing_iso3 <- pop_f3 %>% filter(!country %in% ISO$country) %>% select(country, iso3) %>% filter(!duplicated(country))
@@ -537,9 +630,10 @@ length(unique(pop_f2$country)) # 200
 #   mutate(iso3 = coalesce(iso3.x, iso3.y)) %>%
 #   filter(year == 2022) %>%
 #   select(-year, -country, -iso3.x, -iso3.y)
-
-pop_f2022 <- pop_f2 %>%
-  filter(year == 2022)
+max(pop_f2$year)
+pop_f <- pop_f2 %>%
+  filter(!is.na(country)) %>%
+  filter(year == year[which.min(abs(year - analysis_year))])
 
 # (no_iso3 <- births_2022 |>
 #     filter(is.na(iso3)) |>
@@ -561,7 +655,7 @@ pop_f2022 <- pop_f2 %>%
 #   select(-country, -iso3.x, -iso3.y, -g_whoregion.x, -g_whoregion.y)
 
 num_births <- births_2022 %>%
-  left_join(pop_f2022, by = c("country", "iso3", "age_group")) %>%
+  left_join(pop_f, by = c("country", "iso3", "age_group")) %>%
   filter(country != "Channel Islands")
 
 table(num_births$g_whoregion)
@@ -614,7 +708,8 @@ hiv_data <- hiv_data |>
 
 # keep latest year
 hiv_data <- hiv_data %>%
-  filter(latest) %>%
+  filter(year == year[which.min(abs(analysis_year - year))]) %>%
+  arrange(country, Indicator) %>%
   select(-latest, -IndicatorCode, -year)
 
 hiv_data <- hiv_data |>
@@ -705,7 +800,9 @@ new_df_births <- new_df_births |>
     HIVwidth = hiv_hi - hiv_lo,
     HIVwidthSq = HIVwidth^2,
     TBIwidth = TBI_hi - TBI_lo,
-    TBIwidthSq = TBIwidth^2
+    TBIwidthSq = TBIwidth^2,
+    popWidth = pop_f_hi - pop_f_lo,
+    popWidthSq = popWidth^2
   )
 
 # Summarize total births and their uncertainty per country
@@ -751,6 +848,7 @@ new_df_births <- new_df_births |>
   )
 
 ## calx
+# TODO: add uncertainty for pop_f
 names(new_df_births)
 new_df_births <- new_df_births |>
   mutate(
@@ -760,12 +858,12 @@ new_df_births <- new_df_births |>
     PY.PP = births_best * 91.25 / 365,
     PY.PPH0 = birthsH0 * 91.25 / 365,
     PY.PPH1 = birthsH1 * 91.25 / 365,
-    TBI.P_best = births_best * 280 / 365 * (TBI_best / pop_f),
-    TBI.PH0_best = birthsH0 * 280 / 365 * (TBI_best / pop_f),
-    TBI.PH1_best = birthsH1 * 280 / 365 * (TBI_best / pop_f),
-    TBI.PP_best = births_best * 91.25 / 365 * (TBI_best / pop_f),
-    TBI.PPH0_best = birthsH0 * 91.25 / 365 * (TBI_best / pop_f),
-    TBI.PPH1_best = birthsH1 * 91.25 / 365 * (TBI_best / pop_f)
+    TBI.P_best = births_best * 280 / 365 * (TBI_best / pop_f_best),
+    TBI.PH0_best = birthsH0 * 280 / 365 * (TBI_best / pop_f_best),
+    TBI.PH1_best = birthsH1 * 280 / 365 * (TBI_best / pop_f_best),
+    TBI.PP_best = births_best * 91.25 / 365 * (TBI_best / pop_f_best),
+    TBI.PPH0_best = birthsH0 * 91.25 / 365 * (TBI_best / pop_f_best),
+    TBI.PPH1_best = birthsH1 * 91.25 / 365 * (TBI_best / pop_f_best)
   )
 
 
@@ -796,17 +894,17 @@ new_df_births <- new_df_births |>
     PY.PPH0width = 91.25 / 365 * birthsH0Width,
     PY.PPH1width = 91.25 / 365 * birthsH1Width,
     TBI.Pwidth = TBI.P_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsWidth / births_best)^2),
+      sqrt((TBIwidth / TBI_best)^2 + (birthsWidth / births_best)^2 + (popWidth / pop_f_best)^2),
     TBI.PH0width = TBI.PH0_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsH0Width / births_best)^2),
+      sqrt((TBIwidth / TBI_best)^2 + (birthsH0Width / births_best)^2 + (popWidth / pop_f_best)^2),
     TBI.PH1width = TBI.PH1_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsH1Width / births_best)^2),
+      sqrt((TBIwidth / TBI_best)^2 + (birthsH1Width / births_best)^2 + (popWidth / pop_f_best)^2),
     TBI.PPwidth = TBI.PP_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsWidth / births_best)^2),
+      sqrt((TBIwidth / TBI_best)^2 + (birthsWidth / births_best)^2 + (popWidth / pop_f_best)^2),
     TBI.PPH0width = TBI.PPH0_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsH0Width / births_best)^2),
+      sqrt((TBIwidth / TBI_best)^2 + (birthsH0Width / births_best)^2 + (popWidth / pop_f_best)^2),
     TBI.PPH1width = TBI.PPH1_best *
-      sqrt((TBIwidth / TBI_best)^2 + (birthsH1Width / births_best)^2)
+      sqrt((TBIwidth / TBI_best)^2 + (birthsH1Width / births_best)^2 + (popWidth / pop_f_best)^2)
   )
 
 # scale up TB in HIV by IRR hiv_data
