@@ -90,20 +90,9 @@ num_births <- num_births %>%
   mutate(across(contains("births"), ~ .x * 1000),
          across(contains("pop"), ~ .x * 1000))
 
-# Merge with ISO3 codes
-num_births <- num_births %>%
-  left_join(ISOS, by = c("country")) %>%
-  select(country, iso3, g_whoregion, age_group, year, starts_with("births"), starts_with("pop"))
-
 # check
 num_births |> 
   summarise(population = sum(pop_best, na.rm = TRUE),
             births = sum(births_best, na.rm = TRUE)) # OK
-
-table(num_births$g_whoregion, useNA = "always")
-length(unique(num_births$country))
-
-num_births |> 
-  filter(is.na(g_whoregion)) 
 
 save(num_births, file = here("TBburden/outdata/UNPOP.RData"))

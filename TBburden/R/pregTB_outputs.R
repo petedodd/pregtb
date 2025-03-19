@@ -122,6 +122,18 @@ regional_prop <- df %>%
 num_countries <- length(unique(df$country))
 print(paste("Number of unique countries:", num_countries))  # Should be 215
 
+
+# Merge with ISO3 codes
+num_births <- num_births %>%
+  left_join(ISOS, by = c("country")) %>%
+  select(country, iso3, g_whoregion, age_group, year, starts_with("births"), starts_with("pop"))
+
+table(num_births$g_whoregion, useNA = "always")
+length(unique(num_births$country))
+
+num_births |> 
+  filter(is.na(g_whoregion)) 
+
 # Filter num_births to match WHO TB data or the most recent year
 num_births <- num_births %>%
   filter(year == year[which.min(abs(year - analysis_year))]) %>%
