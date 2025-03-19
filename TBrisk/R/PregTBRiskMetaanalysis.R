@@ -235,8 +235,9 @@ m1
 m2 <- DD |> 
   filter(HIV == 'yes') |> 
   select(period=clinical, m=`Incidence Risk Ratio`, lo=mlo, hi=mhi, SE) |>
-  mutate(period = ifelse(grepl('Pregnancy',period), 'PH1', 'PPH1'),
-         description = ifelse(grepl('Pregnancy',period), 'Pregnancy HIV data', 'Postpartum HIV data'))
+  mutate(description = ifelse(grepl('Pregnancy',period), 'Pregnancy HIV data', 'Postpartum HIV data'),
+         period = ifelse(grepl('Pregnancy',period), 'PH1', 'PPH1')
+         )
 
 m2
 
