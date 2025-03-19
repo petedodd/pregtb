@@ -20,6 +20,10 @@ library(here)
 library(countrycode)
 library(countries)
 
+## also needed installed:
+## janitor - install.packages("janitor")
+## HEdtree - devtools::install_github("petedodd/HEdtree")
+
 # Load ISO country codes
 load(here("TBburden/indata/isodict.Rdata"))
 code <- read_csv(here("TBburden/indata", "all.csv")) %>%

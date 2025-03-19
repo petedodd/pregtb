@@ -2,6 +2,7 @@ library(here)
 library(tidyverse)
 library(data.table)
 library(countrycode)
+library(readxl)
 
 # Function to load and clean WPP data
 load_wpp_data <- function(file_path, sheet_names, skip_rows, id_cols, age_groups) {

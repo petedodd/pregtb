@@ -141,6 +141,9 @@ tb_hiv_risk %>%
   labs(y = "Incidence Rate Ratio (IRR)", x = "WHO Region") +
   coord_flip()
 
+fn <- here("TBburden/plots")
+if(!file.exists(fn)) dir.create(fn)
+
 ggplot() +
   geom_jitter(data = tb_hiv_risk, aes(x = g_whoregion, y = IRR), width = 0.2, alpha = 0.5) +
   geom_pointrange(
