@@ -31,8 +31,8 @@ This analysis was run using R version 4.4.1 (2024-06-14).
 
 The following R packages must be available:
 
--   utility: here, , tidyverse, glue, stringr
--   data manipulation: data.table, dplyr,
+-   utility: here, glue, stringr
+-   data manipulation: data.table, tidyverse,
 -   plotting: ggplot2, ggthemes, scales, ggrepel, ggpubr
 
 ## Description of folders & analysis scripts

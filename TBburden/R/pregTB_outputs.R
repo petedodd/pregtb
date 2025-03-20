@@ -103,25 +103,6 @@ df <- df_ISO %>%
 df <- df %>%
   filter(sex == "f", age_group %in% c("15-24", "25-34", "35-44", "45-54"))
 
-# Calculate regional proportions of TB cases by age group
-regional_prop <- df %>%
-  group_by(g_whoregion, age_group) %>%
-  summarise(
-    sum_best_age = sum(best, na.rm = TRUE),
-    sum_lo_age = sum(lo, na.rm = TRUE),
-    sum_hi_age = sum(hi, na.rm = TRUE)
-  ) %>%
-  ungroup() %>%
-  group_by(g_whoregion) %>%
-  mutate(
-    sum_best_over = sum(sum_best_age, na.rm = TRUE),
-    sum_lo_over = sum(sum_lo_age, na.rm = TRUE),
-    sum_hi_over = sum(sum_hi_age, na.rm = TRUE),
-    prop_best = sum_best_age / sum_best_over,
-    prop_lo = sum_lo_age / sum_lo_over,
-    prop_hi = sum_hi_age / sum_hi_over
-  )
-
 # Check number of unique countries
 num_countries <- length(unique(df$country))
 print(paste("Number of unique countries:", num_countries))  # Should be 215
@@ -190,7 +171,7 @@ new_df_births <- new_df_births %>%
 births_summary <- new_df_births %>%
   group_by(country) %>%
   summarise(
-    tot.births = sum(births_best, na.rm = TRUE),
+    total_births = sum(births_best, na.rm = TRUE),
     totBirthsWidth = sqrt(sum(birthsWidthSq, na.rm = TRUE))  # SD propagation for births uncertainty
     ) %>%
   ungroup()
@@ -199,10 +180,9 @@ births_summary <- new_df_births %>%
 new_df_births <- new_df_births %>%
   left_join(births_summary, by = "country") %>%
   mutate(
-    hiv_best = hiv / tot.births,  # Best estimate HIV rate
+    hiv_best = hiv / total_births,  # Best estimate HIV rate
     HIVwidth = hiv_best * sqrt(
-      (birthsWidth / births_best)^2 +  # Uncertainty from birthsWidth
-        (totBirthsWidth / tot.births)^2 +  # Uncertainty from total births
+        (totBirthsWidth / total_births)^2 +  # Uncertainty from total births
         (HIVwidth / hiv)^2  # Uncertainty from HIV
       )
     )
@@ -210,7 +190,7 @@ new_df_births <- new_df_births %>%
 # check     
 new_df_births |>
   filter(country == "Zimbabwe") |>
-  select(matches("births|hiv"))
+  select(matches("births|hiv|HIV"))
 
 # Calculate births by HIV status and their uncertainties
 new_df_births <- new_df_births %>%
@@ -222,33 +202,40 @@ new_df_births <- new_df_births %>%
     birthsH0 = births_best - birthsH1,
     birthsH0Width = sqrt(birthsWidth^2 + birthsH1Width^2)
     )
-         
+
+# Add pregnancy & postpartum duration
+new_df_births <- new_df_births %>%
+  mutate(
+    pregDur = 280/365,  # Duration of pregnancy in years
+    ppDur = 91.25/365  # Duration of postpartum period in years
+    )
+
 # Calculate person-years and TBI estimates
 new_df_births <- new_df_births %>%
   mutate(
-    PY.P = births_best * 280 / 365,
-    PY.PH0 = birthsH0 * 280 / 365,
-    PY.PH1 = birthsH1 * 280 / 365,
-    PY.PP = births_best * 91.25 / 365,
-    PY.PPH0 = birthsH0 * 91.25 / 365,
-    PY.PPH1 = birthsH1 * 91.25 / 365,
-    TBI.P_best = births_best * 280 / 365 * (TBI_best / pop_best),
-    TBI.PH0_best = birthsH0 * 280 / 365 * (TBI_best / pop_best),
-    TBI.PH1_best = birthsH1 * 280 / 365 * (TBI_best / pop_best),
-    TBI.PP_best = births_best * 91.25 / 365 * (TBI_best / pop_best),
-    TBI.PPH0_best = birthsH0 * 91.25 / 365 * (TBI_best / pop_best),
-    TBI.PPH1_best = birthsH1 * 91.25 / 365 * (TBI_best / pop_best)
+    PY.P = births_best * pregDur,
+    PY.PH0 = birthsH0 * pregDur,
+    PY.PH1 = birthsH1 * pregDur,
+    PY.PP = births_best * ppDur,
+    PY.PPH0 = birthsH0 * ppDur,
+    PY.PPH1 = birthsH1 * ppDur,
+    TBI.P_best = births_best * pregDur * (TBI_best / pop_best),
+    TBI.PH0_best = birthsH0 * pregDur * (TBI_best / pop_best),
+    TBI.PH1_best = birthsH1 * pregDur * (TBI_best / pop_best),
+    TBI.PP_best = births_best * ppDur * (TBI_best / pop_best),
+    TBI.PPH0_best = birthsH0 * ppDur * (TBI_best / pop_best),
+    TBI.PPH1_best = birthsH1 * ppDur * (TBI_best / pop_best)
     )
          
 # Calculate uncertainties for person-years and TBI estimates
 new_df_births <- new_df_births %>%
   mutate(
-    PY.Pwidth = 280 / 365 * birthsWidth,
-    PY.PH0width = 280 / 365 * birthsH0Width,
-    PY.PH1width = 280 / 365 * birthsH1Width,
-    PY.PPwidth = 91.25 / 365 * birthsWidth,
-    PY.PPH0width = 91.25 / 365 * birthsH0Width,
-    PY.PPH1width = 91.25 / 365 * birthsH1Width,
+    PY.Pwidth = pregDur * birthsWidth,
+    PY.PH0width = pregDur * birthsH0Width,
+    PY.PH1width = pregDur * birthsH1Width,
+    PY.PPwidth = ppDur * birthsWidth,
+    PY.PPH0width = ppDur * birthsH0Width,
+    PY.PPH1width = ppDur * birthsH1Width,
     TBI.Pwidth = TBI.P_best * sqrt(
       (TBIwidth / TBI_best)^2 + (birthsWidth / births_best)^2 + (popWidth / pop_best)^2
       ),
@@ -399,7 +386,7 @@ summary_regions_population <- summary_regions_population |>
   pivot_wider(names_from = key, values_from = value)
 
 # looks okay:
-# approximately 1.8 billion females aged 15-49 years in 2024
+# approximately 2 billion females aged 15-49 years in 2024
 # 132 million births worldwide in 2024
 summary_regions_population
 
@@ -825,3 +812,4 @@ summary_countries_adjusted <- summary_countries_adjusted %>%
   pivot_wider(names_from = key, values_from = value)
 
 write.csv(summary_countries_adjusted, here::here("TBburden/outdata", "summary_countries_22_adjusted.csv"), row.names = FALSE)
+
