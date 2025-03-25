@@ -104,6 +104,15 @@ tb_hiv_risk |>
   select(tbhiv, tbhivWidth, h15f_best, h15fWidth) |> 
   summary()
 
+tb_hiv_risk |> 
+  ggplot(aes(x = h15f_best, y = tbhiv)) +
+  geom_point() +
+  # fit a curved smooth line
+  geom_smooth(se = FALSE, method = "gam", formula = y ~ s(log(x))) +
+  # geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  theme_minimal() +
+  labs(x = "TB-HIV Co-infection (%)", y = "HIV Prevalence (%)")
+
 tb_hiv_risk <- tb_hiv_risk %>%
   mutate(
     IRR = ifelse(tbhiv == 100 | h15f_best == 100, NA, 

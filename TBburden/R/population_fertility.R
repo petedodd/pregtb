@@ -36,13 +36,25 @@ fertility_data <- load_wpp_data(
 )
 
 # Load female population data
+# population_data <- load_wpp_data(
+#   file_path = here("TBburden/indata/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx"),
+#   sheet_names = c("Medium variant", "Low variant", "High variant"),
+#   skip_rows = 16,
+#   id_cols = id_cols,
+#   age_groups = age_groups
+# )
+
+# Using Probabilistic Population Projections which have uncertainty estimates
 population_data <- load_wpp_data(
-  file_path = here("TBburden/indata/WPP2024_POP_F02_3_POPULATION_5-YEAR_AGE_GROUPS_FEMALE.xlsx"),
-  sheet_names = c("Medium variant", "Low variant", "High variant"),
+  file_path = here("TBburden/indata/UN_PPP2024_Output_PopulationByAge_Female.xlsx"),
+  sheet_names = c("Median", "Lower 95", "Upper 95"),
   skip_rows = 16,
   id_cols = id_cols,
   age_groups = age_groups
 )
+
+population_data |> 
+  filter(country == "Zimbabwe" & year == 2024)
 
 # Function to recategorize age groups
 recode_age_groups <- function(data) {
@@ -65,6 +77,9 @@ recode_age_groups <- function(data) {
 fertility_data <- recode_age_groups(fertility_data)
 population_data <- recode_age_groups(population_data)
 
+names(population_data) <- names(fertility_data)
+population_data |> 
+  filter(country == "Zimbabwe" & year == 2024)
 # Merge fertility and population data
 num_births <- fertility_data %>%
   left_join(population_data, by = c("country", "country_code", "year", "age_group"), 
@@ -93,7 +108,8 @@ num_births <- num_births %>%
 
 # check
 num_births |> 
+  filter(year == 2024) |>
   summarise(population = sum(pop_best, na.rm = TRUE),
-            births = sum(births_best, na.rm = TRUE)) # OK
+            births = sum(births_best, na.rm = TRUE)) # ~ 2 bn women & 132m births OK
 
 save(num_births, file = here("TBburden/outdata/UNPOP.RData"))
