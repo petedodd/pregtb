@@ -1,21 +1,28 @@
+# This script is used to generate maps of the global burden of TB during pregnancy and postpartum
 
-
-source(here::here("TBburden/R", "pregTB_births2023.R"))
+source(here::here("TBburden/R", "pregTB_outputs.R"))
 
 library(ggplot2)
 library(getTBinR)
 library(scales)
 
-key_parms <- c("pregTBI_best","pregTBIwidthSq",
-               "ppTBI_best", "ppTBIwidthSq",
+key_parms <- c("TBI.P_best","pregTBIwidthSq",
+               "TBI.PP_best", "ppTBIwidthSq",
                "births_best")
+key_parms <- new_df_births_adjusted %>%
+  select(matches("TBI\\.")) %>%
+  names()
+
+best_parms <- key_parms[grepl("best", key_parms)]
+key_parms <- c(best_parms, "PY.PP", "PY.P")
 
 # prepare data 
 summary_countries <- new_df_births_adjusted %>% 
   group_by(country, iso3) %>% 
-  summarise_at(all_of(key_parms), ~sum(., na.rm=T)) 
-summary_countries$pregTBI_best_r <- summary_countries$pregTBI_best/summary_countries$births_best * 1000
-summary_countries$ppTBI_best_r <- summary_countries$ppTBI_best/summary_countries$births_best * 1000
+  summarise_at(all_of(key_parms), ~sum(., na.rm=T))
+
+summary_countries$TBI.P_best <- summary_countries$TBI.P_best/summary_countries$PY.P * 1000
+summary_countries$TBI.PP_best <- summary_countries$TBI.PP_best/summary_countries$PY.PP * 1000
 
 summary_countries <- as.data.frame(summary_countries)
 
@@ -23,9 +30,11 @@ summary_countries <- as.data.frame(summary_countries)
 # using the shapefile used in the WHO TB report
 
 ## Bind in world data
+# install.packages("devtools")
+# devtools::install_github("seabbs/getTBinR")
 plot_df <- getTBinR::who_shapefile %>% 
   left_join(summary_countries, c("id" = "iso3"))
-# plot_df$pregTBI_best_r <- ifelse(is.na(plot_df$pregTBI_best_r), 0, plot_df$pregTBI_best_r)
+# plot_df$TBI.P_best_r <- ifelse(is.na(plot_df$TBI.P_best_r), 0, plot_df$TBI.P_best_r)
 length(unique(plot_df$country))
 
 theme_bare <- theme(
@@ -48,7 +57,7 @@ pregnancy <- ggplot(plot_df,
                     aes(x = long, 
                         y = lat, 
                         text = country,
-                        fill = pregTBI_best)) +
+                        fill = TBI.P_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
@@ -64,7 +73,7 @@ postpartum <- ggplot(plot_df,
                aes(x = long, 
                    y = lat, 
                    text = country,
-                   fill = ppTBI_best)) +
+                   fill = TBI.PP_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
@@ -80,7 +89,7 @@ pregnancy1 <- ggplot(plot_df,
                     aes(x = long, 
                         y = lat, 
                         text = country,
-                        fill = pregTBI_best_r)) +
+                        fill = TBI.P_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
@@ -96,7 +105,7 @@ postpartum1 <- ggplot(plot_df,
                      aes(x = long, 
                          y = lat, 
                          text = country,
-                         fill = ppTBI_best_r)) +
+                         fill = TBI.PP_best)) +
   geom_polygon(aes(group = group), color = "black", size = 0.3, na.rm = TRUE) +
   coord_equal() +
   ggthemes::theme_map() +
@@ -105,7 +114,7 @@ postpartum1 <- ggplot(plot_df,
                        guide="colourbar")+
                        # values=c(0,0.0024999991480808,0.05,4.5230826273651)^ 0.2313782,
                        # limits=c(0,1.5001),breaks=c(0,0.05,4.5230826273651)^ 0.2313782, 
-                       # labels=c(0,1,1.5), geom_tile(aes(fill=ppTBI_best_r^0.2313782),colour="grey50", size=0.1)) +
+                       # labels=c(0,1,1.5), geom_tile(aes(fill=TBI.PP_best_r^0.2313782),colour="grey50", size=0.1)) +
   # ggtitle("Global burden of TB during postpartum") +
   guides(fill = guide_colorbar(title = "Estimated number of TB incident cases per 1000 pregnant women", barwidth = 23)) +
   # labs(caption = "Source: World Health Organisation") +
@@ -134,7 +143,7 @@ ggsave(plot=postpartum2,filename=here::here("TBburden/plots/TB incidence map dur
 #                                     nameJoinColumn = "iso3", mapResolution = "coarse")
 # 
 # #getting class intervals 
-# classInt <- classIntervals( mapped_data[["pregTBI_best_r"]] ,n=4, style = "jenks") 
+# classInt <- classIntervals( mapped_data[["TBI.P_best_r"]] ,n=4, style = "jenks") 
 # catMethod = classInt[["brks"]]
 # 
 # 
@@ -147,7 +156,7 @@ ggsave(plot=postpartum2,filename=here::here("TBburden/plots/TB incidence map dur
 # #plot map 
 # map1 <- mapDevice() #create world map shaped window
 # mapParams <- mapCountryData(mapped_data 
-#                             ,nameColumnToPlot="pregTBI_best_r" 
+#                             ,nameColumnToPlot="TBI.P_best_r" 
 #                             ,addLegend=FALSE 
 #                             ,catMethod = catMethod 
 #                             ,colourPalette=colourPalette2)
@@ -156,9 +165,9 @@ ggsave(plot=postpartum2,filename=here::here("TBburden/plots/TB incidence map dur
 # # par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
 # # 
 # # 
-# # mapCountryData(mapped_data, nameColumnToPlot = "pregTBI_best_r", colourPalette = "terrain")
+# # mapCountryData(mapped_data, nameColumnToPlot = "TBI.P_best_r", colourPalette = "terrain")
 # 
-# # mapParams <- mapCountryData( mapped_data, nameColumnToPlot="pregTBI_best_r"
+# # mapParams <- mapCountryData( mapped_data, nameColumnToPlot="TBI.P_best_r"
 # #                              , addLegend=FALSE )
 # #adding legend 
 # do.call(addMapLegend ,c(mapParams 

@@ -177,6 +177,7 @@ births_summary <- new_df_births %>%
   ungroup()
 
 # Calculate HIV rate and propagate uncertainty for each country
+summary(new_df_births$hiv)
 new_df_births <- new_df_births %>%
   left_join(births_summary, by = "country") %>%
   mutate(
@@ -185,6 +186,20 @@ new_df_births <- new_df_births %>%
       (totBirthsWidth / total_births)^2 +  # Uncertainty from total births
         (HIVwidth / hiv)^2  # Uncertainty from HIV
     )
+  )
+
+summary(new_df_births$hiv_best)
+x <- new_df_births |> 
+  filter(hiv_best>1) |> 
+  select(country, age_group, births_best, hiv, total_births, hiv_best, HIVwidth) |> 
+  distinct()
+
+# if HIV > 1, then hiv_best = 1
+# some countries have more HIV pregnant women than total births
+new_df_births <- new_df_births %>%
+  mutate(
+    hiv_best = ifelse(hiv_best > 1, 1, hiv_best),
+    HIVwidth = ifelse(hiv_best > 1, 0, HIVwidth)
   )
 
 # check     
@@ -283,6 +298,7 @@ new_df_births <- new_df_births %>%
 # ---------------------------------------------------------------------
 # This section is working on correcting split of TB cases by HIV status
 # Calculate person-years and TBI estimates
+summary(new_df_births$hiv_best)
 new_df_births <- new_df_births %>%
   mutate(
     PY.P = births_best * pregDur,
@@ -602,6 +618,7 @@ summary_regions <- summary_regions |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value, -1), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -644,6 +661,7 @@ summary_regions_byagegroup <- summary_regions_byagegroup |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -c(g_whoregion, age_group), names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -695,6 +713,7 @@ summary_hbc <- summary_hbc |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -861,6 +880,7 @@ summary_regions_adjusted <- summary_regions_adjusted |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value,-2), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -909,6 +929,7 @@ summary_regions_byagegroup_adjusted <- summary_regions_byagegroup_adjusted |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -c(g_whoregion, age_group), names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -959,6 +980,7 @@ summary_hbc_adjusted <- summary_hbc_adjusted |>
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
@@ -999,6 +1021,7 @@ summary_countries_adjusted <- summary_countries_adjusted %>%
     TBI.PPH1_best, TBI.PPH1_lo, TBI.PPH1_hi
   ) |>
   pivot_longer(cols = -country, names_to = "key", values_to = "value") |>
+  # mutate(value = pmax(value, 0)) |> # remove negative values: mostly on lo estimates for now
   mutate(value = formatC(round(value), format = "d", big.mark = ",")) |>
   pivot_wider(names_from = key, values_from = value)
 
