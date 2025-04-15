@@ -124,6 +124,10 @@ num_births <- num_births %>%
   filter(year == year[which.min(abs(year - analysis_year))]) %>%
   select(-year)
 
+# Check for missing HIV data
+hiv_data |> 
+  filter(is.na(hiv))
+
 # Merge with births data
 num_births <- num_births %>%
   left_join(hiv_data, by = c("country", "iso3"))
@@ -143,11 +147,6 @@ length(unique(new_df_births$country)) # 215
 setdiff(unique(new_df_births$country), unique(df$country))
 setdiff(unique(df$country), unique(new_df_births$country))
 
-# Fill missing HIV values with region means for safety
-new_df_births <- new_df_births %>%
-  group_by(g_whoregion) %>%
-  mutate(across(matches("hiv"), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
-  ungroup()
 
 # Add uncertainty widths for births, HIV, and TBI
 ## use the 'width' -- there will be a common factor of 3.92 for all contributors:
@@ -190,17 +189,28 @@ new_df_births <- new_df_births %>%
 
 summary(new_df_births$hiv_best)
 x <- new_df_births |> 
-  filter(hiv_best>1) |> 
+  filter(is.na(hiv_best)) |> 
   select(country, age_group, births_best, hiv, total_births, hiv_best, HIVwidth) |> 
-  distinct()
+  distinct(country)
 
-# if HIV > 1, then hiv_best = 1
-# some countries have more HIV pregnant women than total births
+names(new_df_births)[grepl('hiv',names(new_df_births))]
+
+# Fill missing HIV values with region means for safety
 new_df_births <- new_df_births %>%
-  mutate(
-    hiv_best = ifelse(hiv_best > 1, 1, hiv_best),
-    HIVwidth = ifelse(hiv_best > 1, 0, HIVwidth)
-  )
+  group_by(g_whoregion) %>%
+  mutate(across(matches("hiv"), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
+  ungroup()
+# 
+# # if HIV > 1, then hiv_best = 0
+# # some countries have more HIV pregnant women than total births
+# # this arises from using region means
+# new_df_births <- new_df_births %>%
+#   mutate(
+#     hiv_best = ifelse(hiv_best > 1, 0, hiv_best),
+#     HIVwidth = ifelse(hiv_best > 1, 0, HIVwidth)
+#   )
+
+summary(new_df_births$hiv_best)
 
 # check     
 new_df_births |>
