@@ -198,7 +198,12 @@ names(new_df_births)[grepl('hiv',names(new_df_births))]
 # Fill missing HIV values with region means for safety
 new_df_births <- new_df_births %>%
   group_by(g_whoregion) %>%
-  mutate(across(matches("hiv"), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .))) %>%
+  mutate(hiv_best = coalesce(hiv_best, mean(hiv_best, na.rm = TRUE)),
+         HIVwidth = ifelse(
+           is.na(HIVwidth) & is.na(hiv_best),
+           sqrt(mean(HIVwidth^2, na.rm = TRUE)),
+           HIVwidth
+         )) %>%
   ungroup()
 # 
 # # if HIV > 1, then hiv_best = 0
