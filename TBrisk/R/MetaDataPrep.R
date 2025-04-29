@@ -45,6 +45,7 @@ DRI <- DR[include == "Yes"]
 # All studies postpartum
 DRPP <- DPP[, .(FA, Full_study, site, country, year, HIV, IRR, Sample, ppYTBY, ppNTBY, ppYTBN, ppNTBN, m, mlo, mhi)]
 DRPP$study_type <- ifelse(DRPP$FA %in% c("Odayar", "Zenner", "Jonsson"), "cohort", "non_cohort")
+DRPP$country <- ifelse(DRPP$country == "Santo Domingo", "Dominican Republic", DRPP$country)
 DRPP$include <- ifelse(DRPP$FA %in% c("Rendell", "Zenner", "Jonsson"), "Yes", "No")
 DRPP <- DRPP[!is.na(m)]
 DRPP

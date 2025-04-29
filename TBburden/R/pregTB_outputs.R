@@ -99,9 +99,25 @@ df <- df_age_sex %>%
 df <- df_ISO %>%
   left_join(df, by = c("country", "iso3"))
 
+df |> 
+  select(country, iso3, g_whoregion, age_group, year, best, lo, hi)
+
+unique(df$age_group)
+df |> 
+  filter(sex == "f" & age_group == "15plus") |>
+  summarise(
+    sum(best, na.rm = TRUE)
+  )
+
+unique(df$age_group)
 # Filter for females in reproductive age groups
 df <- df %>%
   filter(sex == "f", age_group %in% c("15-24", "25-34", "35-44", "45-54"))
+
+df |> 
+  summarise(
+    sum(best, na.rm = TRUE)
+  )
 
 # Check number of unique countries
 num_countries <- length(unique(df$country))
@@ -441,6 +457,7 @@ new_df_births <- new_df_births %>%
 
 # Summarize TBI cases by country
 # Probably don't need na.rm=TRUE here...
+names(new_df_births)[grepl('TBI_',names(new_df_births))]
 pregTB_cases <- new_df_births %>%
   group_by(country) %>%
   summarise(
@@ -581,6 +598,33 @@ summary_regions_py <- summary_regions_py |>
 summary_regions_py
 
 write.csv(summary_regions_py, here::here("TBburden/outdata", "summary_regions_py_2022.csv"), row.names = FALSE)
+
+# summary baseline TB incidence 15-54 years 
+summary_regions_tbi <- new_df_births %>%
+  dplyr::group_by(g_whoregion) %>%
+  dplyr::summarise_at(c('TBI_best', 'TBIwidthSq'), ~ sum(., na.rm = T)) %>%
+  janitor::adorn_totals("row")
+
+# formatC(1e6, format = "d", big.mark = ",")
+
+## add hi/lo
+names(summary_regions_tbi)
+summary_regions_tbi <- summary_regions_tbi |>
+  dplyr::mutate(
+    TBI_lo = TBI_best - sqrt(TBIwidthSq) / 2,
+    TBI_hi = TBI_best + sqrt(TBIwidthSq) / 2
+  ) |>
+  select(
+    g_whoregion,
+    TBI=TBI_best, TBI_lo, TBI_hi,
+  ) |>
+  pivot_longer(cols = -g_whoregion, names_to = "key", values_to = "value") |>
+  dplyr::mutate(value = formatC(round(value, -2), format = "d", big.mark = ",")) |>
+  pivot_wider(names_from = key, values_from = value)
+
+summary_regions_tbi
+
+write.csv(summary_regions_tbi, here::here("TBburden/outdata", "summary_regions_tbi_2022.csv"), row.names = FALSE)
 
 # TODO: start here
 
@@ -1053,4 +1097,11 @@ b <- df |> summarise(
   TBI_best = sum(TBI_best)
 )
 
+c <- df_age_sex |> 
+  filter(sex == "f" & age_group == "15plus") |>
+  summarise(
+    TBI_best = sum(best, na.rm = TRUE)
+  )
+
 a/b*100
+a/c*100
