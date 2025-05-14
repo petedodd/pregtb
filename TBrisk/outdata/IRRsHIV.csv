@@ -1,0 +1,10 @@
+group,state,Incident TB,person-time,IRR (95% CI)
+PLHIV,not-PPP,63,8364233,   1 
+PLHIV,pregnant,9,211861,5.73 (2.64 to 10.9)
+PLHIV,PP,3,116957,3.58 (0.847 to 9.63)
+HIV-negative,not-PPP,28,10389664,   1 
+HIV-negative,pregnant,1,293833,1.44 (0.0611 to 6.66)
+HIV-negative,PP,1,157764,2.68 (0.114 to 12.4)
+PLHIV (variant assumption),not-PPP,63,3959318,   1 
+PLHIV (variant assumption),pregnant,9,211861,2.71 (1.25 to 5.18)
+PLHIV (variant assumption),PP,3,116957,1.69 (0.401 to 4.56)
