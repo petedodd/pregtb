@@ -63,8 +63,8 @@ pregnancy <- ggplot(plot_df,
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
   scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
-  ggtitle("Global burden of TB during pregnancy") +
-  guides(fill = guide_colourbar(title = "Estimated number of TB incident cases (all forms)", barwidth = 30)) +
+  ggtitle("") +
+  guides(fill = guide_colourbar(title = "Estimated number of incident TB cases (all forms) per 1,000 person years", barwidth = 30)) +
   theme_bare
   
 
@@ -79,8 +79,8 @@ postpartum <- ggplot(plot_df,
   ggthemes::theme_map() +
   theme(legend.position = "bottom") +
   scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
-  ggtitle("Global burden of TB during postpartum") +
-  guides(fill = guide_colorbar(title = "Estimated number of TB incident cases (all forms)", barwidth = 30)) +
+  ggtitle("") +
+  guides(fill = guide_colorbar(title = "Estimated number of incident TB cases (all forms) per 1,000 person years", barwidth = 30)) +
   # labs(caption = "Source: World Health Organisation") +
   theme_bare
 
@@ -96,7 +96,7 @@ pregnancy1 <- ggplot(plot_df,
   theme(legend.position = "bottom") +
   scale_fill_gradient(high = "#e34a33", low = "#fee8c8", guide = "colorbar", na.value = na.value.forplot, labels = comma) +
   # ggtitle("Global burden of TB during pregnancy") +
-  guides(fill = guide_colourbar(title = "Estimated number of TB incident cases per 1000 pregnant women", barwidth = 23)) +
+  guides(fill = guide_colourbar(title = "Estimated number of incident TB cases (all forms) per 1,000 person years", barwidth = 23)) +
   theme_bare
 
 
@@ -116,19 +116,19 @@ postpartum1 <- ggplot(plot_df,
                        # limits=c(0,1.5001),breaks=c(0,0.05,4.5230826273651)^ 0.2313782, 
                        # labels=c(0,1,1.5), geom_tile(aes(fill=TBI.PP_best_r^0.2313782),colour="grey50", size=0.1)) +
   # ggtitle("Global burden of TB during postpartum") +
-  guides(fill = guide_colorbar(title = "Estimated number of TB incident cases per 1000 pregnant women", barwidth = 23)) +
+  guides(fill = guide_colorbar(title = "Estimated number of incident TB cases (all forms) per 1,000 person years", barwidth = 23)) +
   # labs(caption = "Source: World Health Organisation") +
   theme_bare 
   
 
-ggsave(plot=pregnancy,filename=here::here("TBburden/plots/TB incidence map during pregnancy.png"),
+ggsave(plot=pregnancy,filename=here::here("TBburden/plots/TBIpregnancy.png"),
        width=12, height=8, dpi=600)
-ggsave(plot=postpartum,filename=here::here("TBburden/plots/TB incidence map during postpartum.png"),
+ggsave(plot=postpartum,filename=here::here("TBburden/plots/TBIpostpartum.png"),
        width=14, height=8, dpi=600)
 
-ggsave(plot=pregnancy1,filename=here::here("TBburden/plots/TB incidence map during pregnancy per 1000 pregnancies.png"),
+ggsave(plot=pregnancy1,filename=here::here("TBburden/plots/TBIpregnancy1000PY.png"),
        width=14, height=8, dpi=600)
-ggsave(plot=postpartum2,filename=here::here("TBburden/plots/TB incidence map during postpartum per 1000 pregnancies.png"),
+ggsave(plot=postpartum1,filename=here::here("TBburden/plots/TBIpostpartum1000PY.png"),
        width=15, height=8, dpi=600)
 
 
