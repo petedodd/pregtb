@@ -170,6 +170,12 @@ B$lab <- forcats::fct_rev(factor(B$lab))
 B1 <- B |> 
   filter(!(qty == 'summary' & grepl('HIV', clinical)))
 
+B1 <- B1 |> 
+  mutate(
+    hiv = ifelse(grepl('HIV', clinical), 'yes', 'no'),
+    hiv = factor(hiv, levels = c('no', 'yes'))
+  )
+
 #' Create publication forest plot figure:
 SA <- ggplot(B1,aes(lab,y=`Incidence Risk Ratio`,
                    ymin=mlo,

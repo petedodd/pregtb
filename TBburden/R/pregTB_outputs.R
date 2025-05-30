@@ -1105,3 +1105,22 @@ c <- df_age_sex |>
 
 a/b*100
 a/c*100
+
+unique(df_age_sex$age_group)
+# 15-54
+d <- df_age_sex |> 
+  filter(sex == "f" & age_group %in% c("15-24","25-34","35-44","45-54")) |>
+  summarise(
+    TBI_best = sum(best, na.rm = TRUE)
+  )
+
+a/d*100
+
+# 15-44
+e <- df_age_sex |> 
+  filter(sex == "f" & age_group %in% c("15-24","25-34","35-44")) |>
+  summarise(
+    TBI_best = sum(best, na.rm = TRUE)
+  )
+
+a/e*100
