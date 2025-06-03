@@ -295,13 +295,14 @@ SA <- ggplot(B1, aes(lab, y = `Incidence Risk Ratio`, ymin = mlo, ymax = mhi, co
   geom_text(aes(x = lab, y = ifelse(hiv == 'no', 4.5, 15), label = CI, hjust = 'right')) +
   geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.8, 0), label = wt)) +
   geom_text(data = labdat, aes(x = x, y = y, label = ifelse(hiv == 'no', txt, '')), size = 4) +
-  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', txt, '')), size = 4) +
-  ggpubr::grids()
+  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', 'IRR (95% CI)', '')), size = 4) +
+  ggpubr::grids()+
+  scale_x_discrete(labels = function(y) str_wrap(y, width = 15))
 
 SA
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.pdf'),h=13,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.eps'),h=13,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.png'),h=11,w=10)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.pdf'),h=8,w=12)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.eps'),h=8,w=12)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.png'),h=6,w=12)
 
 # save out data
 m0 <- B |> 
