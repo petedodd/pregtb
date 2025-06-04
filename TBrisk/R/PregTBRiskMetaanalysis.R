@@ -242,8 +242,8 @@ ordered_levels <- c(
 labdat <- rbind(
   labdat |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 4.4, y = -0.5),
   labdat |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 3.4, y = -0.5),
-  labdat |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = 0.5),
-  labdat |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = 0.5)
+  labdat |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = -0.5),
+  labdat |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = -0.5)
 ) |> distinct()
 
 labdat2 <- rbind(
@@ -293,11 +293,11 @@ SA <- ggplot(B1, aes(lab, y = `Incidence Risk Ratio`, ymin = mlo, ymax = mhi, co
     strip.text = element_text(size = 12)
   ) +
   geom_text(aes(x = lab, y = ifelse(hiv == 'no', 4.5, 15), label = CI, hjust = 'right')) +
-  geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.8, 0), label = wt)) +
+  geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.8, -0.8), label = wt)) +
   geom_text(data = labdat, aes(x = x, y = y, label = ifelse(hiv == 'no', txt, '')), size = 4) +
-  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', 'IRR (95% CI)', '')), size = 4) +
-  ggpubr::grids()+
-  scale_x_discrete(labels = function(y) str_wrap(y, width = 15))
+  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', "IRR (95% CI)", '')), size = 4) +
+  ggpubr::grids() +
+  scale_x_discrete(labels = function(y) stringr::str_wrap(y, width = 15))
 
 SA
 ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.pdf'),h=8,w=12)
@@ -464,7 +464,14 @@ lbz <- c('Pregnancy no HIV',
          'Pregnancy HIV',
          'Postpartum no HIV',
          'Postpartum HIV')
-B[,clinical.g:=factor(clinical.g,levels=lbz)]
+
+lbz_labels <- c(
+  "Pregnancy living without HIV",
+  "Pregnancy living with HIV",
+  "Postpartum living without HIV",
+  "Postpartum living with HIV"
+)
+B[,clinical.g:=factor(clinical.g,levels=lbz, labels=lbz_labels, ordered = TRUE)]
 labdat <- B[1]
 labdat[,txt:=' Weight (%)']
 labdat2 <- B[1]
@@ -474,52 +481,85 @@ B$lab <- forcats::fct_rev(factor(B$lab))
 
 B1 <- B 
 
+B1 <- B1 |> 
+  mutate(
+    hiv = ifelse(grepl('HIV', clinical), 'yes', 'no'),
+    hiv = factor(hiv, levels = c('no', 'yes'))
+  )
+
 #' Create publication forest plot figure:
-SA <- ggplot(B1,aes(lab,y=`Incidence Risk Ratio`,
-                    ymin=mlo,
-                    ymax=mhi,
-                    col=qty)) +
-  geom_point(aes(size=1/SE^2,shape=qty)) +
-  geom_errorbar(aes(width=w/2)) +
-  scale_y_continuous(limits = c(-1,NA))+
-  scale_color_manual(values=c('study'="black",'summary'="blue"))+
-  scale_shape_manual(values=c('study'=22,'summary'=23))+
+ordered_levels <- c(
+  "Pregnancy living without HIV",
+  "Postpartum living without HIV",
+  "Pregnancy living with HIV",
+  "Postpartum living with HIV"
+)
+
+# Ensure factors are ordered in all relevant datasets
+labdat <- rbind(
+  labdat |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 5.4, y = -0.5),
+  labdat |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 4.5, y = -0.5),
+  labdat |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = -0.5),
+  labdat |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = -0.5)
+) |> distinct()
+
+labdat2 <- rbind(
+  labdat2 |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 5.4, y = 3.8),
+  labdat2 |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 4.5, y = 3.8),
+  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = 17),
+  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = 12.5)
+) |> distinct()
+
+# Set factor levels for proper ordering
+labdat$clinical.g <- factor(labdat$clinical.g, levels = ordered_levels, ordered = TRUE)
+labdat2$clinical.g <- factor(labdat2$clinical.g, levels = ordered_levels, ordered = TRUE)
+B1$clinical.g <- factor(B1$clinical.g, levels = ordered_levels, ordered = TRUE)
+B1$hiv <- factor(B1$hiv, levels = c("no", "yes"))
+labdat$hiv <- factor(labdat$hiv, levels = c("no", "yes"))
+labdat2$hiv <- factor(labdat2$hiv, levels = c("no", "yes"))
+
+# Plot
+SA <- ggplot(B1, aes(lab, y = `Incidence Risk Ratio`, ymin = mlo, ymax = mhi, col = qty)) +
+  geom_point(aes(size = 1 / SE^2, shape = qty)) +
+  geom_errorbar(aes(width = w / 2)) +
+  scale_y_continuous(limits = c(-1, NA)) +
+  scale_color_manual(values = c('study' = "black", 'summary' = "blue")) +
+  scale_shape_manual(values = c('study' = 22, 'summary' = 23)) +
   xlab('') +
-  ylab('Incidence Risk Ratio for tuberculosis')+
-  facet_grid(clinical.g ~ ., 
+  ylab('Incidence Risk Ratio for tuberculosis') +
+  facet_wrap(~ clinical.g, 
              labeller = labeller(clinical.g = function(labels) {
                sapply(labels, function(label) {
-                 paste(strwrap(label, width = 15), collapse = "\n") # Adjust width as needed
-               })}),
-             scales = 'free',space='free',
-             switch='x'
-  )+
+                 paste(strwrap(label, width = 30), collapse = "\n")
+               })
+             }),
+             scales = 'free',
+             switch = 'x'
+  ) +
   coord_flip() +
-  guides(size='none',color='none',shape='none')+
+  guides(size = 'none', color = 'none', shape = 'none') +
   theme_classic() +
   theme(
-    panel.spacing = unit(1, "lines"),  # Adjust spacing between facets
+    panel.spacing = unit(1, "lines"),
     strip.background = element_blank(),
     strip.placement = "outside",
-    # Increase axis text size
-    axis.text.x = element_text(size = 12),  # X-axis text size
-    axis.text.y = element_text(size = 12),  # Y-axis text size
-    # Increase axis title size
-    axis.title.x = element_text(size = 12),  # X-axis title size
-    axis.title.y = element_text(size = 12),  # Y-axis title size
-    # Increase facet label size
-    strip.text = element_text(size = 12)  # Facet label size
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    strip.text = element_text(size = 12)
   ) +
-  geom_text(aes(x = lab, y = 15, label = CI, hjust = 'right')) +
-  geom_text(aes(x = lab, y = -0.8, label = wt)) +
-  geom_text(data = labdat, aes(x = 5.5, y = -0.5, label = txt), size = 4) +
-  geom_text(data = labdat2, aes(x = 5.5, y = 13, label = txt), size = 4) +
-  ggpubr::grids()
+  geom_text(aes(x = lab, y = ifelse(hiv == 'no', 4.5, 16), label = CI, hjust = 'right')) +
+  geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.8, -0.8), label = wt)) +
+  geom_text(data = labdat, aes(x = x, y = y, label = ifelse(hiv == 'no', txt, '')), size = 4) +
+  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', "IRR (95% CI)", '')), size = 4) +
+  ggpubr::grids() +
+  scale_x_discrete(labels = function(y) stringr::str_wrap(y, width = 15))
 
 SA
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.pdf'),h=13,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.eps'),h=13,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.png'),h=10,w=11)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.pdf'),h=8,w=12)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.eps'),h=8,w=12)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotSA.png'),h=6,w=15)
 
 
 m0 <- B |> 

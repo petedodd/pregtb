@@ -124,9 +124,17 @@ unique(regions_hilo$Period)
 regions_hilo <- regions_hilo %>% 
   left_join(regions, by=c("g_whoregion", "age_group", "Period")) |> 
   mutate(Period = factor(Period, 
-                         levels = c("TBI.PH0","TBI.PPH0","TBI.PH1","TBI.PPH1"),
-                         labels = c("Pregnancy no HIV", "Pregnancy HIV",
-                                    "Postpartum no HIV", "Postpartum HIV")))
+                         levels = c(
+                           "TBI.PH0",
+                           "TBI.PH1",
+                           "TBI.PPH0",
+                           "TBI.PPH1"),
+                         labels = c(
+                           "Pregnancy living without HIV",
+                           "Pregnancy living with HIV",
+                           "Postpartum living without HIV",
+                           "Postpartum living with HIV"
+                         )))
 
 regions_plot3 <- regions_hilo%>%  
   mutate(across(c(best, lo, hi), ~as.numeric(gsub(',', '', .)))) %>%

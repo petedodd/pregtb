@@ -148,6 +148,16 @@ hiv_data |>
 num_births <- num_births %>%
   left_join(hiv_data, by = c("country", "iso3"))
 
+unique(num_births$age_group)
+unique(df$age_group)
+
+# recode "45-54" to "45-49" for consistency
+num_births <- num_births %>%
+  mutate(age_group = ifelse(age_group == "45-54", "45-49", age_group))
+
+df <- df %>%
+  mutate(age_group = ifelse(age_group == "45-54", "45-49", age_group))
+
 # combining the different datasets -
 # births, population of females in the reproductive age and
 # TB incident case in women in the reproductive age group
@@ -163,6 +173,7 @@ length(unique(new_df_births$country)) # 215
 setdiff(unique(new_df_births$country), unique(df$country))
 setdiff(unique(df$country), unique(new_df_births$country))
 
+unique(new_df_births$age_group)
 
 # Add uncertainty widths for births, HIV, and TBI
 ## use the 'width' -- there will be a common factor of 3.92 for all contributors:
