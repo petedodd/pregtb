@@ -185,9 +185,9 @@ B1 <- B1 |>
 
 #' Create publication forest plot figure:
 SA <- ggplot(B1,aes(lab,y=`Incidence Risk Ratio`,
-                   ymin=mlo,
-                   ymax=mhi,
-                   col=qty)) +
+                    ymin=mlo,
+                    ymax=mhi,
+                    col=qty)) +
   geom_point(aes(size=1/SE^2,shape=qty)) +
   geom_errorbar(aes(width=w/2)) +
   scale_y_continuous(limits = c(-1,NA))+
@@ -233,24 +233,24 @@ ggsave(SA,file=here::here('TBrisk/plots/ForestPlot.png'),h=11,w=10)
 # Alternative plot with different scales for HIV/no HIV
 ordered_levels <- c(
   "Pregnancy living without HIV",
-  "Postpartum living without HIV",
   "Pregnancy living with HIV",
+  "Postpartum living without HIV",
   "Postpartum living with HIV"
 )
 
 # Ensure factors are ordered in all relevant datasets
 labdat <- rbind(
-  labdat |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 4.4, y = -0.5),
-  labdat |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 3.4, y = -0.5),
-  labdat |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = -0.5),
+  labdat |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 4.5, y = -0.2),
+  labdat |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 1.5, y = -0.5),
+  labdat |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.55, y = -0.5),
   labdat |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = -0.5)
 ) |> distinct()
 
 labdat2 <- rbind(
-  labdat2 |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 4.4, y = 3.8),
-  labdat2 |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 3.4, y = 3.8),
-  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.5, y = 12.5),
-  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = 12.5)
+  labdat2 |> mutate(hiv = 'no', clinical.g = 'Pregnancy living without HIV', x = 4.5, y = 3.8),
+  labdat2 |> mutate(hiv = 'no', clinical.g = 'Postpartum living without HIV', x = 1.5, y = 3.8),
+  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Pregnancy living with HIV', x = 1.55, y = 14),
+  labdat2 |> mutate(hiv = 'yes', clinical.g = 'Postpartum living with HIV', x = 1.5, y = 14)
 ) |> distinct()
 
 # Set factor levels for proper ordering
@@ -260,7 +260,8 @@ B1$clinical.g <- factor(B1$clinical.g, levels = ordered_levels, ordered = TRUE)
 B1$hiv <- factor(B1$hiv, levels = c("no", "yes"))
 labdat$hiv <- factor(labdat$hiv, levels = c("no", "yes"))
 labdat2$hiv <- factor(labdat2$hiv, levels = c("no", "yes"))
-
+labdat2$pp <- ifelse(grepl('Postpartum', labdat2$clinical.g), 'yes', 'no')
+labdat$pp <- ifelse(grepl('Postpartum', labdat$clinical.g), 'yes', 'no')
 # Plot
 SA <- ggplot(B1, aes(lab, y = `Incidence Risk Ratio`, ymin = mlo, ymax = mhi, col = qty)) +
   geom_point(aes(size = 1 / SE^2, shape = qty)) +
@@ -292,17 +293,17 @@ SA <- ggplot(B1, aes(lab, y = `Incidence Risk Ratio`, ymin = mlo, ymax = mhi, co
     axis.title.y = element_text(size = 12),
     strip.text = element_text(size = 12)
   ) +
-  geom_text(aes(x = lab, y = ifelse(hiv == 'no', 4.5, 15), label = CI, hjust = 'right')) +
-  geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.8, -0.8), label = wt)) +
-  geom_text(data = labdat, aes(x = x, y = y, label = ifelse(hiv == 'no', txt, '')), size = 4) +
-  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(hiv == 'no', "IRR (95% CI)", '')), size = 4) +
+  geom_text(aes(x = lab, y = ifelse(hiv == 'no', 4.5, 16), label = CI, hjust = 'right')) +
+  geom_text(aes(x = lab, y = ifelse(hiv == 'no', -0.1, -0.3), label = wt)) +
+  geom_text(data = labdat, aes(x = x, y = y, label = ifelse(pp == 'no', txt, '')), size = 4) +
+  geom_text(data = labdat2, aes(x = x, y = y, label = ifelse(pp == 'no', "IRR (95% CI)", '')), size = 4) +
   ggpubr::grids() +
   scale_x_discrete(labels = function(y) stringr::str_wrap(y, width = 15))
 
 SA
 ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.pdf'),h=8,w=12)
 ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.eps'),h=8,w=12)
-ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.png'),h=6,w=12)
+ggsave(SA,file=here::here('TBrisk/plots/ForestPlotNew.png'),h=8,w=14)
 
 # save out data
 m0 <- B |> 
@@ -324,7 +325,7 @@ m2 <- DD |>
   select(period=clinical, m=`Incidence Risk Ratio`, lo=mlo, hi=mhi, SE) |>
   mutate(description = ifelse(grepl('Pregnancy',period), 'Pregnancy HIV data', 'Postpartum HIV data'),
          period = ifelse(grepl('Pregnancy',period), 'PH1', 'PPH1')
-         )
+  )
 
 m2
 
